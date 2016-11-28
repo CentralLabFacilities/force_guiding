@@ -1,0 +1,10 @@
+<launch>
+
+    <param name="topic_sub" value="/joint_states" />
+    <param name="topic_pub" value="/joint_states" />
+    <param name="input_joint" value="right_arm_j0" />
+    <param name="controlled_joint" value="zlift_j0" />
+
+    <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
+
+</launch>
