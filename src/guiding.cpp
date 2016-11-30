@@ -10,6 +10,9 @@
 //rosparams
 std::string topic_sub, topic_pub, input_joint, controlled_joint;
 
+//true if launched in sim
+bool sim;
+
 //index of input joint
 int joint_id = -1;
 int cjoint_id = -1;
@@ -150,5 +153,16 @@ void readParams(ros::NodeHandle nh){
     } else {
         controlled_joint = "zlift_j0";
         ROS_INFO("Using default joint %s to actuate.", controlled_joint.c_str());
+    }
+
+    if(nh.getParam ("sim", sim)){
+        if(sim){
+            ROS_INFO("Using sim");
+        } else {
+            ROS_INFO("No sim");
+        }
+    } else {
+        sim = false;
+        ROS_INFO("No sim as default");;
     }
 }
