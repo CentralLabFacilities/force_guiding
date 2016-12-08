@@ -7,6 +7,7 @@ project(meka_guiding)
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         sensor_msgs
+        control_msgs
         roslaunch
         )
 
@@ -102,7 +103,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES meka_guiding
-  CATKIN_DEPENDS roscpp sensor_msgs
+  CATKIN_DEPENDS roscpp sensor_msgs control_msgs
 #  DEPENDS system_lib
 )
 

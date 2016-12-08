@@ -4,6 +4,7 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/JointState.h"
+#include "control_msgs/JointTrajectoryControllerState.h"
 
 /** global variables **/
 
@@ -163,6 +164,6 @@ void readParams(ros::NodeHandle nh){
         }
     } else {
         sim = false;
-        ROS_INFO("No sim as default");;
+        ROS_INFO("No sim as default");
     }
 }
