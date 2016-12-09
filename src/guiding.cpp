@@ -25,10 +25,11 @@ int main(int argc, char **argv)
     //which service to wait for on meka?
     //ros::service::waitForService("spawn");
 
-    ros::Subscriber sub = nh.subscribe("/meka_roscontrol/zlift_position_trajectory_controller/state", 500, callback);
 
     helper.reset(new Helper());
     helper.get()->init(nh);
+
+    ros::Subscriber sub = nh.subscribe(helper.get()->getTopicSub(), 500, callback);
 
     ROS_INFO("SPINNING");
     //do the spin
@@ -45,5 +46,4 @@ void callback(const control_msgs::JointTrajectoryControllerState::ConstPtr& msg)
 /**     NOTES
  *
  * --- if not starting in init_pose, strange things happen
- *
  */

@@ -9,9 +9,9 @@ void Helper::init(ros::NodeHandle nh){
 
     old_pos = init_pos;
 
-    //readParams(nh);
+    readParams(nh);
 
-    pub = nh.advertise<trajectory_msgs::JointTrajectory>("/meka_roscontrol/zlift_position_trajectory_controller/command", 500);
+    pub = nh.advertise<trajectory_msgs::JointTrajectory>(topic_pub, 500);
 }
 
 void Helper::setActZ(double act_z) {
@@ -29,7 +29,7 @@ void Helper::controlJoint() {
     trajectory_msgs::JointTrajectory msg_tra;
 
     try{
-        listener.lookupTransform("/base_link", "wrist_RIGHT",
+        listener.lookupTransform(tf_src, tf_dst,
                                  ros::Time(0), transform);
         ROS_INFO("got transform!");
     }
@@ -75,43 +75,35 @@ void Helper::calcNewPos(){
 //only looks for given parameters, otherwise uses hardcoded default values for sim
 void Helper::readParams(ros::NodeHandle nh){
 
-    if(nh.getParam ("tf_joint", tf_joint)){
-        ROS_INFO("Using given frame %s for transform.", tf_joint.c_str());
-    } else {
-        tf_joint = "/base_link";
-        ROS_INFO("Using default topic %s to subscribe to.", tf_joint.c_str());
+    if(!nh.getParam ("tf_src", tf_src)){
+         tf_src = "base_link";
     }
 
-    if(nh.getParam ("topic_pub", topic_pub)){
-        ROS_INFO("Using given topic %s for publishing.", topic_pub.c_str());
-    } else {
-        topic_pub = "/joint_states";
-        ROS_INFO("Using default topic %s for publishing.", topic_pub.c_str());
+    if(!nh.getParam ("tf_dst", tf_dst)){
+        tf_dst = "wrist_RIGHT";
     }
 
-    if(nh.getParam ("input_joint", input_joint)){
-        ROS_INFO("Using given input joint %s.", input_joint.c_str());
-    } else {
+    if(!nh.getParam ("topic_sub", topic_sub)){
+        topic_sub = "/meka_roscontrol/zlift_position_trajectory_controller/state";
+    }
+
+    if(!nh.getParam ("topic_pub", topic_pub)){
+        topic_pub = "/meka_roscontrol/zlift_position_trajectory_controller/command";
+    }
+
+    if(!nh.getParam ("input_joint", input_joint)){
         input_joint = "right_arm_j0";
-        ROS_INFO("Using default input joint %s.", input_joint.c_str());
     }
 
-    if(nh.getParam ("controlled_joint", controlled_joint)){
-        ROS_INFO("Using given joint %s to actuate.", controlled_joint.c_str());
-    } else {
+    if(!nh.getParam ("controlled_joint", controlled_joint)){
         controlled_joint = "zlift_j0";
-        ROS_INFO("Using default joint %s to actuate.", controlled_joint.c_str());
     }
 
-    if(nh.getParam ("sim", sim)){
-        if(sim){
-            ROS_INFO("Using sim");
-        } else {
-            ROS_INFO("No sim");
-        }
-    } else {
+    if(!nh.getParam ("sim", sim)){
         sim = false;
-        ROS_INFO("No sim as default");
     }
 }
 
+std::string Helper::getTopicSub() {
+    return topic_sub;
+}

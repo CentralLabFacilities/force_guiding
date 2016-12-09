@@ -14,6 +14,7 @@ public:
     void init(ros::NodeHandle nh);
     void setActZ(double act_z);
     void controlJoint();
+    std::string getTopicSub();
 
 private:
     /**     variables   **/
@@ -22,7 +23,7 @@ private:
     tf::StampedTransform transform;
     std::mutex act_z_mutex;
     tf::Vector3 init_pos, old_pos, new_pos;
-    std::string topic_pub, input_joint, controlled_joint, tf_joint;
+    std::string topic_pub, topic_sub, input_joint, controlled_joint, tf_src, tf_dst;
     bool sim;
     double act_z, new_z;
     const double zlift_max = 0.80;
