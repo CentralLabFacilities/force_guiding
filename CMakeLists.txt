@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(meka_guiding)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
         roscpp
-        sensor_msgs
+        tf
+        std_msgs
         control_msgs
         roslaunch
         )
@@ -103,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES meka_guiding
-  CATKIN_DEPENDS roscpp sensor_msgs control_msgs
+  CATKIN_DEPENDS roscpp std_msgs control_msgs
 #  DEPENDS system_lib
 )
 
@@ -128,7 +130,7 @@ include_directories(
 # add_dependencies(meka_guiding ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(meka_guiding src/guiding.cpp)
+add_executable(meka_guiding src/guiding.cpp src/Helper.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
