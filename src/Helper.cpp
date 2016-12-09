@@ -28,14 +28,6 @@ void Helper::controlJoint() {
     trajectory_msgs::JointTrajectoryPoint msg_point;
     trajectory_msgs::JointTrajectory msg_tra;
 
-    double act_z_;
-
-    ROS_INFO("locking...");
-    act_z_mutex.lock();
-    act_z_ = act_z;
-    act_z_mutex.unlock();
-    ROS_INFO("unlocked...");
-
     try{
         listener.lookupTransform("/base_link", "wrist_RIGHT",
                                  ros::Time(0), transform);
@@ -48,9 +40,7 @@ void Helper::controlJoint() {
 
     new_pos = transform.getOrigin();
 
-    new_z = act_z_ + old_pos.distance(new_pos);
-
-    ROS_INFO("new z: %f; act z: %f", new_z, act_z_);
+    calcNewPos();
 
     msg_point.positions.push_back(new_z);
     msg_tra.points.push_back(msg_point);
@@ -61,6 +51,25 @@ void Helper::controlJoint() {
 
     old_pos = new_pos;
     ROS_INFO("controlJoint END");
+}
+
+void Helper::calcNewPos(){
+    double act_z_;
+    double dist = old_pos.distance(new_pos);
+
+    ROS_INFO("locking...");
+    act_z_mutex.lock();
+    act_z_ = act_z;
+    act_z_mutex.unlock();
+    ROS_INFO("unlocked...");
+
+    if(new_pos.getX() > (init_pos.getX() * 1.05) && (act_z_ + dist) < zlift_max){
+        new_z = act_z_ + dist;
+    } else if(new_pos.getX() < (init_pos.getX() * 0.95) && (act_z_ - dist) > zlift_min){
+        new_z = act_z_ - dist;
+    }
+
+    ROS_INFO("new z: %f; act z: %f", new_z, act_z_);
 }
 
 //only looks for given parameters, otherwise uses hardcoded default values for sim

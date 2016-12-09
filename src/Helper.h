@@ -25,9 +25,12 @@ private:
     std::string topic_pub, input_joint, controlled_joint, tf_joint;
     bool sim;
     double act_z, new_z;
+    const double zlift_max = 0.80;
+    const double zlift_min = 0.00;
 
     /**     functions   **/
     void readParams(ros::NodeHandle nh);
+    void calcNewPos();
 
 };
 
