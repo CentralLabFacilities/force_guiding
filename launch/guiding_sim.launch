@@ -7,5 +7,6 @@
     <param name="sim" value="true" />
 
     <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
+    <node name="command_bridge" pkg="meka_guiding" type="command_bridge"  output="screen" />
 
 </launch>

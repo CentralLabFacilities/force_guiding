@@ -29,7 +29,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## To declare and build messages, services or actions from within this
 ## package, follow these steps:
 ## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
+##   your messages/services/actions (e.g. std_msgs, actionlib_msgs,  ...).
 ## * In the file package.xml:
 ##   * add a build_depend tag for "message_generation"
 ##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
@@ -131,6 +131,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(meka_guiding src/guiding.cpp src/Helper.cpp)
+add_executable(command_bridge src/command_bridge.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -138,6 +139,10 @@ add_executable(meka_guiding src/guiding.cpp src/Helper.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(meka_guiding
+        ${catkin_LIBRARIES}
+)
+
+target_link_libraries(command_bridge
         ${catkin_LIBRARIES}
 )
 
