@@ -41,3 +41,9 @@ void callback(const control_msgs::JointTrajectoryControllerState::ConstPtr& msg)
     helper.get()->setActZ(msg->actual.positions.front());
     helper.get()->controlJoint();
 }
+
+/**     NOTES
+ *
+ * --- if not starting in init_pose, strange things happen
+ *
+ */
