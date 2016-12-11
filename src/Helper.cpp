@@ -1,27 +1,15 @@
 #include "Helper.h"
 
+//prep-work
 void Helper::init(ros::NodeHandle nh){
 
-    // [hardcoded] initial position
-    init_pos.setX(0.435);
-    init_pos.setY(-0.216);
-    init_pos.setZ(0.433);
-
-    old_pos = init_pos;
-
     readParams(nh);
+    calibrate();
 
     pub = nh.advertise<trajectory_msgs::JointTrajectory>(topic_pub, 500);
 }
 
-void Helper::setActZ(double act_z) {
-    ROS_INFO("LOCKING:::");
-    act_z_mutex.lock();
-    this->act_z = act_z;
-    act_z_mutex.unlock();
-    ROS_INFO("UNLOCKED:::");
-}
-
+//gets transform and sets the new position
 void Helper::controlJoint() {
     ROS_INFO("controlJoint START");
 
@@ -29,8 +17,7 @@ void Helper::controlJoint() {
     trajectory_msgs::JointTrajectory msg_tra;
 
     try{
-        listener.lookupTransform(tf_src, tf_dst,
-                                 ros::Time(0), transform);
+        listener.lookupTransform(tf_src, tf_dst, ros::Time(0), transform);
         ROS_INFO("got transform!");
     }
     catch (tf::TransformException ex){
@@ -53,6 +40,7 @@ void Helper::controlJoint() {
     ROS_INFO("controlJoint END");
 }
 
+//calculates new position to set depending on the deflections of the input joints
 void Helper::calcNewPos(){
     double act_z_;
     double dist = old_pos.distance(new_pos);
@@ -70,6 +58,23 @@ void Helper::calcNewPos(){
     }
 
     ROS_INFO("new z: %f; act z: %f", new_z, act_z_);
+}
+
+//sets initial position
+void Helper::calibrate() {
+    ROS_INFO("calibrating...");
+
+    try{
+        listener.lookupTransform(tf_src, tf_dst, ros::Time(0), transform);
+        ROS_INFO("got transform!");
+    }
+    catch (tf::TransformException ex){
+        ROS_ERROR("error while calibrating: %s", ex.what());
+        ros::Duration(1.0).sleep();
+    }
+
+    init_pos = transform.getOrigin();
+    old_pos = init_pos;
 }
 
 //only looks for given parameters, otherwise uses hardcoded default values for sim
@@ -104,6 +109,16 @@ void Helper::readParams(ros::NodeHandle nh){
     }
 }
 
+//getter for topic_sub
 std::string Helper::getTopicSub() {
     return topic_sub;
+}
+
+//setter for actual z position
+void Helper::setActZ(double act_z) {
+    ROS_INFO("LOCKING:::");
+    act_z_mutex.lock();
+    this->act_z = act_z;
+    act_z_mutex.unlock();
+    ROS_INFO("UNLOCKED:::");
 }

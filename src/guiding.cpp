@@ -25,13 +25,13 @@ int main(int argc, char **argv)
     //which service to wait for on meka?
     //ros::service::waitForService("spawn");
 
-
+    //initialize helper
     helper.reset(new Helper());
     helper.get()->init(nh);
 
+    //create subscriber
     ros::Subscriber sub = nh.subscribe(helper.get()->getTopicSub(), 500, callback);
 
-    ROS_INFO("SPINNING");
     //do the spin
     ros::spin();
 
@@ -39,11 +39,9 @@ int main(int argc, char **argv)
 }
 
 void callback(const control_msgs::JointTrajectoryControllerState::ConstPtr& msg){
+    //get the acutal position
     helper.get()->setActZ(msg->actual.positions.front());
+
+    //control the joint
     helper.get()->controlJoint();
 }
-
-/**     NOTES
- *
- * --- if not starting in init_pose, strange things happen
- */

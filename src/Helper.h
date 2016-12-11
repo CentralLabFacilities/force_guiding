@@ -32,6 +32,7 @@ private:
     /**     functions   **/
     void readParams(ros::NodeHandle nh);
     void calcNewPos();
+    void calibrate();
 
 };
 
