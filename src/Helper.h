@@ -28,11 +28,12 @@ private:
     double act_z, new_z;
     const double zlift_max = 0.80;
     const double zlift_min = 0.00;
+    const int MAX_CALIBRATION_TRIES = 5;
 
     /**     functions   **/
     void readParams(ros::NodeHandle nh);
     void calcNewPos();
-    void calibrate();
+    bool calibrate();
 
 };
 
