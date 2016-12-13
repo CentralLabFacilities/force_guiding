@@ -32,6 +32,7 @@ void callback(const trajectory_msgs::JointTrajectory::ConstPtr& msg){
 
     msg_state.actual.positions.push_back(pos);
     msg_state.desired.positions.push_back(pos);
+    msg_state.header.stamp = ros::Time::now();
 
     pub.publish(msg_state);
 }
