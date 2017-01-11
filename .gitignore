@@ -30,3 +30,4 @@
 
 # IDE stuff
 .idea
+cmake-build-debug/
