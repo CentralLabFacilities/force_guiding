@@ -69,7 +69,7 @@ void Helper::calcNewPos(){
     } else if(new_pos.getX() < (init_pos.getX() * 0.95) && (act_z_ - dist) > zlift_min){
         new_z = act_z_ - dist;
     }
-
+    ROS_DEBUG_STREAM("init: " << init_pos << " new: " << new_pos);
     ROS_DEBUG("new z: %f; act z: %f; dist %f", new_z, act_z_, dist);
 }
 
