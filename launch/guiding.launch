@@ -4,7 +4,7 @@
     <param name="input_joint" value="wrist_LEFT" />
     <param name="controlled_joint" value="zlift_j0" />
     <param name="tf_src" value="base_link" />
-    <param name="tf_dst" value="wrist_RIGHT" />
+    <param name="tf_dst" value="wrist_LEFT" />
     <param name="sim" value="false" />
 
     <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
