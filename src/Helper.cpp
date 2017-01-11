@@ -85,6 +85,8 @@ void Helper::calcNewPos(){
         new_z = act_z_ + dist;
     } else if(new_pos.getX() < (init_pos.getX() * 0.9) && (act_z_ + dist) > zlift_min){
         new_z = act_z_ + dist;
+    } else {
+        new_z = act_z_; //could lead to suboptimal behavior -> buffer latest new_z-value
     }
 
     ROS_DEBUG_STREAM( "Translation{initial}: [" << init_pos.getX() << ", " << init_pos.getY() << ", " << init_pos.getZ() << "]");
