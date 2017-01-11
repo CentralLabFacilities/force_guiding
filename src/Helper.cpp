@@ -56,7 +56,7 @@ void Helper::controlJoint() {
 //calculates new position to set depending on the deflections of the input joints
 void Helper::calcNewPos(){
     double act_z_;
-    double dist = old_pos.distance(new_pos);
+    double dist = init_pos.distance(new_pos);
 
     ROS_DEBUG("locking...");
     act_z_mutex.lock();
@@ -65,7 +65,7 @@ void Helper::calcNewPos(){
     ROS_DEBUG("unlocked...");
 
     if(new_pos.getX() > (init_pos.getX() * 1.05) && (act_z_ + dist) < zlift_max){
-        new_z = act_z_ + dist;
+        new_z = act_z_ + dist * 100;
     } else if(new_pos.getX() < (init_pos.getX() * 0.95) && (act_z_ - dist) > zlift_min){
         new_z = act_z_ - dist;
     }
