@@ -65,6 +65,16 @@ void Helper::calcNewPos(){
         dist = -dist;
     }
 
+    /* check old_pos method and document it for writing */
+    // deflection using the distance of the vectors
+    //double dist = old_pos.distance(new_pos);
+
+    // check for "negative defelction" to be able to decrease the z-Position
+    //if(old_pos.getX() > new_pos.getX()){
+    //    dist = -dist;
+    //}
+
+
     //ROS_DEBUG("locking...");
     act_z_mutex.lock();
     act_z_ = act_z;
