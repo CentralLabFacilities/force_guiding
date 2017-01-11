@@ -23,14 +23,13 @@ void Helper::init(ros::NodeHandle nh){
 
 //gets transform and sets the new position
 void Helper::controlJoint() {
-    ROS_DEBUG("controlJoint START");
 
     trajectory_msgs::JointTrajectoryPoint msg_point;
     trajectory_msgs::JointTrajectory msg_tra;
 
     try{
         listener.lookupTransform(tf_src, tf_dst, ros::Time(0), transform);
-        ROS_DEBUG("got transform!");
+        ROS_DEBUG("Got Transform!");
     }
     catch (tf::TransformException ex){
         ROS_ERROR("%s",ex.what());
@@ -46,31 +45,32 @@ void Helper::controlJoint() {
     msg_tra.joint_names.push_back(controlled_joint);
     msg_tra.header.stamp = ros::Time::now();
 
-    ROS_DEBUG("publishing...");
     pub.publish(msg_tra);
 
     old_pos = new_pos;
-    ROS_DEBUG("controlJoint END");
 }
 
 //calculates new position to set depending on the deflections of the input joints
 void Helper::calcNewPos(){
     double act_z_;
-    double dist = init_pos.distance(new_pos) * 100;
+    double dist = -(init_pos.getX() - new_pos.getX());
 
-    ROS_DEBUG("locking...");
+    //ROS_DEBUG("locking...");
     act_z_mutex.lock();
     act_z_ = act_z;
     act_z_mutex.unlock();
-    ROS_DEBUG("unlocked...");
+    //ROS_DEBUG("unlocked...");
 
-    if(new_pos.getX() > (init_pos.getX() * 1.05) && (act_z_ + dist) < zlift_max){
+    if(new_pos.getX() > (init_pos.getX() * 1.1) && (act_z_ + dist) < zlift_max){
         new_z = act_z_ + dist;
-    } else if(new_pos.getX() < (init_pos.getX() * 0.95) && (act_z_ - dist) > zlift_min){
-        new_z = act_z_ - dist;
+    } else if(new_pos.getX() < (init_pos.getX() * 0.9) && (act_z_ + dist) > zlift_min){
+        new_z = act_z_ + dist;
     }
-    ROS_DEBUG_STREAM("init: " << init_pos << " new: " << new_pos);
-    ROS_DEBUG("new z: %f; act z: %f; dist %f", new_z, act_z_, dist);
+
+    ROS_DEBUG_STREAM( "Translation{initial}: [" << init_pos.getX() << ", " << init_pos.getY() << ", " << init_pos.getZ() << "]");
+    ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_pos.getX() << ", " << new_pos.getY() << ", " << new_pos.getZ() << "]");
+
+    ROS_DEBUG("ActualZ: %.2f; NewZ: %.2f; StepDistance: %.2f", act_z_, new_z, dist);
 }
 
 //sets initial position
@@ -101,7 +101,7 @@ void Helper::readParams(ros::NodeHandle nh){
     }
 
     if(!nh.getParam ("tf_dst", tf_dst)){
-        tf_dst = "wrist_RIGHT";
+        tf_dst = "wrist_LEFT";
     }
 
     if(!nh.getParam ("topic_sub", topic_sub)){
@@ -110,10 +110,6 @@ void Helper::readParams(ros::NodeHandle nh){
 
     if(!nh.getParam ("topic_pub", topic_pub)){
         topic_pub = "/meka_roscontrol/zlift_position_trajectory_controller/command";
-    }
-
-    if(!nh.getParam ("input_joint", input_joint)){
-        input_joint = "right_arm_j0";
     }
 
     if(!nh.getParam ("controlled_joint", controlled_joint)){
@@ -132,9 +128,9 @@ std::string Helper::getTopicSub() {
 
 //setter for actual z position
 void Helper::setActZ(double act_z) {
-    ROS_DEBUG("LOCKING:::");
+    //ROS_DEBUG("LOCKING:::");
     act_z_mutex.lock();
     this->act_z = act_z;
     act_z_mutex.unlock();
-    ROS_DEBUG("UNLOCKED:::");
+    //ROS_DEBUG("UNLOCKED:::");
 }
