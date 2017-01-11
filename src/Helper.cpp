@@ -53,7 +53,17 @@ void Helper::controlJoint() {
 //calculates new position to set depending on the deflections of the input joints
 void Helper::calcNewPos(){
     double act_z_;
-    double dist = -(init_pos.getX() - new_pos.getX());
+
+    // deflection along the x-axis
+    //double dist = -(init_pos.getX() - new_pos.getX());
+
+    // deflection using the distance of the vectors
+    double dist = init_pos.distance(new_pos);
+
+    // check for "negative defelction" to be able to decrease the z-Position
+    if(init_pos.getX() > new_pos.getX()){
+        dist = -dist;
+    }
 
     //ROS_DEBUG("locking...");
     act_z_mutex.lock();
