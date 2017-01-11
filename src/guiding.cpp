@@ -41,9 +41,9 @@ int main(int argc, char **argv)
 void callback(const control_msgs::JointTrajectoryControllerState::ConstPtr& msg){
 
     //useful for debugging if msg has more then one joint
-    for(float f : msg->actual.positions){
-        ROS_DEBUG("val %f", f);
-    }
+    //for(float f : msg->actual.positions){
+    //   ROS_DEBUG("val %f", f);
+    //}
 
     //get the acutal position
     helper.get()->setActZ(msg->actual.positions[0]);
