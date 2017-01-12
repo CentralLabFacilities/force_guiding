@@ -41,9 +41,10 @@ void Helper::controlJoint() {
     calcNewPos();
 
     msg_point.positions.push_back(new_z);
+    msg_point.time_from_start.sec = 1; //necessary for this message, otherwise it would be rejected
     msg_tra.points.push_back(msg_point);
     msg_tra.joint_names.push_back(controlled_joint);
-    msg_tra.header.stamp = ros::Time::now();
+    //msg_tra.header.stamp = ros::Time::now();
 
     pub.publish(msg_tra);
 
@@ -89,10 +90,12 @@ void Helper::calcNewPos(){
         new_z = act_z_; //could lead to suboptimal behavior -> buffer latest new_z-value
     }
 
+    new_z = (double)((int) (new_z * 100)) / 100;
+
     ROS_DEBUG_STREAM( "Translation{initial}: [" << init_pos.getX() << ", " << init_pos.getY() << ", " << init_pos.getZ() << "]");
     ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_pos.getX() << ", " << new_pos.getY() << ", " << new_pos.getZ() << "]");
 
-    ROS_DEBUG("ActualZ: %.2f; NewZ: %.2f; StepDistance: %.2f", act_z_, new_z, dist);
+    ROS_DEBUG("ActualZ: %f; NewZ: %f; StepDistance: %f", act_z_, new_z, dist);
 }
 
 //sets initial position
