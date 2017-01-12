@@ -15,6 +15,7 @@ void Helper::init(ros::NodeHandle nh){
             break;
         } else if( i == MAX_CALIBRATION_TRIES){
             ROS_FATAL("failed to calibrate after %i tries", MAX_CALIBRATION_TRIES);
+            ros::shutdown();
         }
     }
 
@@ -82,9 +83,9 @@ void Helper::calcNewPos(){
     act_z_mutex.unlock();
     //ROS_DEBUG("unlocked...");
 
-    if(new_pos.getX() > (init_pos.getX() * 1.1) && (act_z_ + dist) < zlift_max){
+    if(new_pos.getX() > (init_pos.getX() * (1 + DEADLOCK_SIZE)) && (act_z_ + dist) < ZLIFT_MAX){
         new_z = act_z_ + dist;
-    } else if(new_pos.getX() < (init_pos.getX() * 0.9) && (act_z_ + dist) > zlift_min){
+    } else if(new_pos.getX() < (init_pos.getX() * (1 - DEADLOCK_SIZE)) && (act_z_ + dist) > ZLIFT_MIN){
         new_z = act_z_ + dist;
     } else {
         new_z = act_z_; //could lead to suboptimal behavior -> buffer latest new_z-value
