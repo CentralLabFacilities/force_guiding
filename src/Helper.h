@@ -19,9 +19,9 @@ public:
 private:
 
     /**     constants   **/
-    const double ZLIFT_MAX = 0.60;
+    const double ZLIFT_MAX = 0.55;
     const double ZLIFT_MIN = 0.20;
-    const double DEADLOCK_SIZE = 0.1;
+    const double DEADLOCK_SIZE = 0.15;
     const int MAX_CALIBRATION_TRIES = 5;
 
     /**     variables   **/

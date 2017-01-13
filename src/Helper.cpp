@@ -67,7 +67,7 @@ void Helper::calcNewPos(){
         dist = -dist;
     }
 
-    /* check old_pos method and document it for writing */
+    /** check old_pos method and document it for writing  NOT USEFUL **/
     // deflection using the distance of the vectors
     //double dist = old_pos.distance(new_pos);
 
@@ -83,11 +83,19 @@ void Helper::calcNewPos(){
     act_z_mutex.unlock();
     //ROS_DEBUG("unlocked...");
 
-    //if minimum / maximum is surpassed, set it to this
-    if(new_pos.getX() > (init_pos.getX() * (1 + DEADLOCK_SIZE)) && (act_z_ + dist) < ZLIFT_MAX){
-        new_z = act_z_ + dist;
-    } else if(new_pos.getX() < (init_pos.getX() * (1 - DEADLOCK_SIZE)) && (act_z_ + dist) > ZLIFT_MIN){
-        new_z = act_z_ + dist;
+    //calculation of position
+    if(new_pos.getX() > (init_pos.getX() * (1 + DEADLOCK_SIZE))){
+        if((act_z_ + dist) < ZLIFT_MAX) {
+            new_z = act_z_ + dist;
+        } else {
+            new_z = ZLIFT_MAX;
+        }
+    } else if(new_pos.getX() < (init_pos.getX() * (1 - DEADLOCK_SIZE))){
+        if((act_z_ + dist) > ZLIFT_MIN){
+            new_z = act_z_ + dist;
+        } else {
+            new_z = ZLIFT_MIN;
+        }
     } else {
         new_z = act_z_; //could lead to suboptimal behavior -> buffer latest new_z-value
     }

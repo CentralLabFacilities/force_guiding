@@ -2,5 +2,6 @@
   <node name="pos_vel_plot"
         pkg="rqt_plot"
         type="rqt_plot"
-        args="/meka_roscontrol/zlift_position_trajectory_controller/state/actual/positions[0] /joint_states/position[35]" />
+        args="/meka_roscontrol/zlift_position_trajectory_controller/state/actual/positions[0]
+	      /meka_roscontrol/zlift_position_trajectory_controller/command/points/positions[0]" />
 </launch>
