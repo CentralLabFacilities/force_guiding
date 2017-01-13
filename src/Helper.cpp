@@ -42,7 +42,7 @@ void Helper::controlJoint() {
     calcPos();
 
     msg_point.positions.push_back(new_zpos);
-    msg_point.time_from_start.sec = 1; //necessary for this message, otherwise it would be rejected
+    msg_point.time_from_start.nsec = 25000000; // time to complete -> 40Hz
     msg_tra.points.push_back(msg_point);
     msg_tra.joint_names.push_back(controlled_joint);
     //msg_tra.header.stamp = ros::Time::now();
