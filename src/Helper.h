@@ -17,6 +17,13 @@ public:
     std::string getTopicSub();
 
 private:
+
+    /**     constants   **/
+    const double ZLIFT_MAX = 0.60;
+    const double ZLIFT_MIN = 0.20;
+    const double DEADLOCK_SIZE = 0.1;
+    const int MAX_CALIBRATION_TRIES = 5;
+
     /**     variables   **/
     ros::Publisher pub;
     tf::TransformListener listener;
@@ -26,10 +33,7 @@ private:
     std::string topic_pub, topic_sub, controlled_joint, tf_src, tf_dst;
     bool sim;
     double act_z, new_z;
-    const double ZLIFT_MAX = 0.80;
-    const double ZLIFT_MIN = 0.00;
-    const double DEADLOCK_SIZE = 0.1;
-    const int MAX_CALIBRATION_TRIES = 5;
+
 
     /**     functions   **/
     void readParams(ros::NodeHandle nh);
