@@ -23,6 +23,7 @@ private:
     const double ZLIFT_MIN = 0.20;
     const double DEADLOCK_SIZE = 0.1;
     const double DISTANCE_FACTOR = 0.5;
+    const double VELOCITY_FATOR = 1.0;
     const int MAX_CALIBRATION_TRIES = 5;
 
     /**     variables   **/

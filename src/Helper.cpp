@@ -96,10 +96,10 @@ void Helper::calcPos(){
             new_zpos = ZLIFT_MIN;
         }
     } else {
-        new_zpos = actual_zpos_; //could lead to suboptimal behavior -> buffer latest new_zpos-value
+        new_zpos = actual_zpos_; //could lead to suboptimal behavior -> dont publish / old position
     }
 
-    new_zpos = (double)((int) (new_zpos * 100)) / 100;
+    //new_zpos = (double)((int) (new_zpos * 100)) / 100;
 
     ROS_DEBUG_STREAM( "Translation{initial}: [" << initial_translation.getX() << ", " << initial_translation.getY() << ", " << initial_translation.getZ() << "]");
     ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_translation.getX() << ", " << new_translation.getY() << ", " << new_translation.getZ() << "]");
