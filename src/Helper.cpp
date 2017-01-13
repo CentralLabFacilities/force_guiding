@@ -83,6 +83,7 @@ void Helper::calcNewPos(){
     act_z_mutex.unlock();
     //ROS_DEBUG("unlocked...");
 
+    //if minimum / maximum is surpassed, set it to this
     if(new_pos.getX() > (init_pos.getX() * (1 + DEADLOCK_SIZE)) && (act_z_ + dist) < ZLIFT_MAX){
         new_z = act_z_ + dist;
     } else if(new_pos.getX() < (init_pos.getX() * (1 - DEADLOCK_SIZE)) && (act_z_ + dist) > ZLIFT_MIN){
