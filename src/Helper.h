@@ -21,23 +21,23 @@ private:
     /**     constants   **/
     const double ZLIFT_MAX = 0.55;
     const double ZLIFT_MIN = 0.20;
-    const double DEADLOCK_SIZE = 0.15;
+    const double DEADLOCK_SIZE = 0.1;
+    const double DISTANCE_FACTOR = 0.5;
     const int MAX_CALIBRATION_TRIES = 5;
 
     /**     variables   **/
     ros::Publisher pub;
     tf::TransformListener listener;
     tf::StampedTransform transform;
-    std::mutex act_z_mutex;
-    tf::Vector3 init_pos, old_pos, new_pos;
+    std::mutex actual_zpos_mutex;
+    tf::Vector3 initial_translation, new_translation;
     std::string topic_pub, topic_sub, controlled_joint, tf_src, tf_dst;
-    bool sim;
-    double act_z, new_z;
+    double actual_zpos, new_zpos;
 
 
     /**     functions   **/
     void readParams(ros::NodeHandle nh);
-    void calcNewPos();
+    void calcPos();
     bool calibrate();
 
 };

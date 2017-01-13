@@ -37,75 +37,74 @@ void Helper::controlJoint() {
         ros::Duration(1.0).sleep();
     }
 
-    new_pos = transform.getOrigin();
+    new_translation = transform.getOrigin();
 
-    calcNewPos();
+    calcPos();
 
-    msg_point.positions.push_back(new_z);
+    msg_point.positions.push_back(new_zpos);
     msg_point.time_from_start.sec = 1; //necessary for this message, otherwise it would be rejected
     msg_tra.points.push_back(msg_point);
     msg_tra.joint_names.push_back(controlled_joint);
     //msg_tra.header.stamp = ros::Time::now();
 
     pub.publish(msg_tra);
-
-    old_pos = new_pos;
 }
 
 //calculates new position to set depending on the deflections of the input joints
-void Helper::calcNewPos(){
-    double act_z_;
+void Helper::calcPos(){
+    double actual_zpos_;
 
     // deflection along the x-axis
-    //double dist = -(init_pos.getX() - new_pos.getX());
+    //double dist = -(initial_translation.getX() - new_translation.getX());
 
     // deflection using the distance of the vectors
-    double dist = init_pos.distance(new_pos);
+    double dist = initial_translation.distance(new_translation);
 
     // check for "negative defelction" to be able to decrease the z-Position
-    if(init_pos.getX() > new_pos.getX()){
-        dist = -dist;
+    if(initial_translation.getX() > new_translation.getX()){
+        dist = (-1) * DISTANCE_FACTOR * dist;
+    } else {
+        dist = DISTANCE_FACTOR * dist;
     }
 
     /** check old_pos method and document it for writing  NOT USEFUL **/
     // deflection using the distance of the vectors
-    //double dist = old_pos.distance(new_pos);
+    //double dist = old_pos.distance(new_translation);
 
     // check for "negative defelction" to be able to decrease the z-Position
-    //if(old_pos.getX() > new_pos.getX()){
+    //if(old_pos.getX() > new_translation.getX()){
     //    dist = -dist;
     //}
 
 
-    //ROS_DEBUG("locking...");
-    act_z_mutex.lock();
-    act_z_ = act_z;
-    act_z_mutex.unlock();
-    //ROS_DEBUG("unlocked...");
+    //get actual zlift position
+    actual_zpos_mutex.lock();
+    actual_zpos_ = actual_zpos;
+    actual_zpos_mutex.unlock();
 
     //calculation of position
-    if(new_pos.getX() > (init_pos.getX() * (1 + DEADLOCK_SIZE))){
-        if((act_z_ + dist) < ZLIFT_MAX) {
-            new_z = act_z_ + dist;
+    if(new_translation.getX() > (initial_translation.getX() * (1 + DEADLOCK_SIZE))){
+        if((actual_zpos_ + dist) < ZLIFT_MAX) {
+            new_zpos = actual_zpos_ + dist;
         } else {
-            new_z = ZLIFT_MAX;
+            new_zpos = ZLIFT_MAX;
         }
-    } else if(new_pos.getX() < (init_pos.getX() * (1 - DEADLOCK_SIZE))){
-        if((act_z_ + dist) > ZLIFT_MIN){
-            new_z = act_z_ + dist;
+    } else if(new_translation.getX() < (initial_translation.getX() * (1 - DEADLOCK_SIZE))){
+        if((actual_zpos_ + dist) > ZLIFT_MIN){
+            new_zpos = actual_zpos_ + dist;
         } else {
-            new_z = ZLIFT_MIN;
+            new_zpos = ZLIFT_MIN;
         }
     } else {
-        new_z = act_z_; //could lead to suboptimal behavior -> buffer latest new_z-value
+        new_zpos = actual_zpos_; //could lead to suboptimal behavior -> buffer latest new_zpos-value
     }
 
-    new_z = (double)((int) (new_z * 100)) / 100;
+    new_zpos = (double)((int) (new_zpos * 100)) / 100;
 
-    ROS_DEBUG_STREAM( "Translation{initial}: [" << init_pos.getX() << ", " << init_pos.getY() << ", " << init_pos.getZ() << "]");
-    ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_pos.getX() << ", " << new_pos.getY() << ", " << new_pos.getZ() << "]");
+    ROS_DEBUG_STREAM( "Translation{initial}: [" << initial_translation.getX() << ", " << initial_translation.getY() << ", " << initial_translation.getZ() << "]");
+    ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_translation.getX() << ", " << new_translation.getY() << ", " << new_translation.getZ() << "]");
 
-    ROS_DEBUG("ActualZ: %f; NewZ: %f; StepDistance: %f", act_z_, new_z, dist);
+    ROS_DEBUG("ActualZ: %f; NewZ: %f; DistanceStep: %f", actual_zpos_, new_zpos, dist);
 }
 
 //sets initial position
@@ -122,13 +121,12 @@ bool Helper::calibrate() {
         return false;
     }
 
-    init_pos = transform.getOrigin();
-    old_pos = init_pos;
+    initial_translation = transform.getOrigin();
 
     return true;
 }
 
-//only looks for given parameters, otherwise uses hardcoded default values for sim
+//checks is parameter were given; otherwise uses default values
 void Helper::readParams(ros::NodeHandle nh){
 
     if(!nh.getParam ("tf_src", tf_src)){
@@ -150,10 +148,6 @@ void Helper::readParams(ros::NodeHandle nh){
     if(!nh.getParam ("controlled_joint", controlled_joint)){
         controlled_joint = "zlift_j0";
     }
-
-    if(!nh.getParam ("sim", sim)){
-        sim = false;
-    }
 }
 
 //getter for topic_sub
@@ -163,9 +157,7 @@ std::string Helper::getTopicSub() {
 
 //setter for actual z position
 void Helper::setActZ(double act_z) {
-    //ROS_DEBUG("LOCKING:::");
-    act_z_mutex.lock();
-    this->act_z = act_z;
-    act_z_mutex.unlock();
-    //ROS_DEBUG("UNLOCKED:::");
+    actual_zpos_mutex.lock();
+    this->actual_zpos = act_z;
+    actual_zpos_mutex.unlock();
 }
