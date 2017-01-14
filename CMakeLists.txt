@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
         roscpp
         tf
         std_msgs
-        control_msgs
+        geometry_msgs
         roslaunch
         )
 
@@ -105,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES meka_guiding
-  CATKIN_DEPENDS roscpp std_msgs control_msgs
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs
 #  DEPENDS system_lib
 )
 
@@ -131,7 +131,6 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(meka_guiding src/guiding.cpp src/Helper.cpp)
-add_executable(command_bridge src/command_bridge.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -142,9 +141,6 @@ target_link_libraries(meka_guiding
         ${catkin_LIBRARIES}
 )
 
-target_link_libraries(command_bridge
-        ${catkin_LIBRARIES}
-)
 
 roslaunch_add_file_check(launch)
 
