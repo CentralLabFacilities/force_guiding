@@ -1,29 +1,8 @@
 #include "Helper.h"
 
-//prep-work
-void Helper::init(ros::NodeHandle nh){
-
-    readParams(nh);
-
-    ROS_INFO("waiting for transform");
-    listener.waitForTransform(tf_src, tf_dst, ros::Time::now(), ros::Duration(0.5));
-
-    for(int i = 1; i <= MAX_CALIBRATION_TRIES; i++){
-        ROS_INFO("calibration try %i", i);
-        if(calibrate()){
-            ROS_INFO("successfully calibrated");
-            break;
-        } else if( i == MAX_CALIBRATION_TRIES){
-            ROS_FATAL("failed to calibrate after %i tries", MAX_CALIBRATION_TRIES);
-            ros::shutdown();
-        }
-    }
-
-    pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 500);
-}
-
 //gets transform and sets the new position
-void Helper::controlJoint() {
+geometry_msgs::Twist Helper::controlJoint() {
+    geometry_msgs::Twist twist;
 
     try{
         listener.lookupTransform(tf_src, tf_dst, ros::Time(0), transform);
@@ -38,18 +17,19 @@ void Helper::controlJoint() {
 
     calcVelocity();
 
-    //TODO create message here
+    twist.linear.x = x_vel;
+    twist.linear.y = y_vel;
 
-    //pub.publish(msg_twist);
+    return twist;
 }
 
-//calculates new position to set depending on the deflections of the input joints
+//calculates new velocities to set depending on the deflections of the input joint
 void Helper::calcVelocity(){
 
     // deflection using the distance of the vectors
     double dist = initial_translation.distance(new_translation);
 
-    // check for "negative defelction" to be able to decrease the z-Position
+    // check for "negative defelction" for calculating negative velocites
     if(initial_translation.getX() > new_translation.getX()){
         dist = (-1) * VELOCITY_FATOR * dist;
     } else {
@@ -63,8 +43,23 @@ void Helper::calcVelocity(){
 
 }
 
+//calibration ... what else?
+void Helper::calibrate(){
+
+    for(int i = 1; i <= MAX_CALIBRATION_TRIES; i++){
+        ROS_INFO("calibration try %i", i);
+        if(lookupInitialTransform()){
+            ROS_INFO("successfully calibrated");
+            break;
+        } else if( i == MAX_CALIBRATION_TRIES){
+            ROS_FATAL("failed to lookupInitialTransform after %i tries", MAX_CALIBRATION_TRIES);
+            ros::shutdown();
+        }
+    }
+}
+
 //sets initial position
-bool Helper::calibrate() {
+bool Helper::lookupInitialTransform() {
     ROS_DEBUG("calibrating...");
 
     try{
@@ -82,19 +77,9 @@ bool Helper::calibrate() {
     return true;
 }
 
-//checks is parameter were given; otherwise uses default values
-void Helper::readParams(ros::NodeHandle nh){
-
-    if(!nh.getParam ("tf_src", tf_src)){
-         tf_src = "base_link";
-    }
-
-    if(!nh.getParam ("tf_dst", tf_dst)){
-        tf_dst = "wrist_LEFT";
-    }
-
-    if(!nh.getParam ("topic_pub", topic_pub)){
-        topic_pub = "/cmd_vel";
-    }
-
+void Helper::setup(std::string tf_src, std::string tf_dst) {
+    this->tf_src = tf_src;
+    this->tf_dst = tf_dst;
+    x_vel = 0.0;
+    y_vel = 0.0;
 }
