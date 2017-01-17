@@ -9,10 +9,11 @@
 class Helper {
 
 public:
+    /**     constructor     **/
+    Helper(ros::NodeHandle nh);
+
     /**     functions  **/
-    void calibrate();
     geometry_msgs::Twist controlJoint();
-    void setup(std::string tf_src, std::string tf_dst);
 
 private:
     /**     constants   **/
@@ -31,8 +32,10 @@ private:
 
 
     /**     functions   **/
+    void calibrate();
     void calcVelocity();
     bool lookupInitialTransform();
+    void readParams(ros::NodeHandle nh);
 
 };
 

@@ -1,5 +1,22 @@
 #include "Helper.h"
 
+Helper::Helper(ros::NodeHandle nh) {
+
+    //read classrelevant parameter
+    readParams(nh);
+
+    //waitin, otherwise the first tf would always fail
+    ROS_INFO("waiting for transform for .5s");
+    listener.waitForTransform(tf_src, tf_dst, ros::Time::now(), ros::Duration(0.5));
+
+    //initialize velocity variables
+    x_vel = 0.0;
+    y_vel = 0.0;
+
+    calibrate();
+
+}
+
 //gets transform and sets the new position
 geometry_msgs::Twist Helper::controlJoint() {
     geometry_msgs::Twist twist;
@@ -43,9 +60,23 @@ void Helper::calcVelocity(){
 
 }
 
+//checks is parameter were given; otherwise uses default values
+void Helper::readParams(ros::NodeHandle nh){
+
+    if(!nh.getParam ("tf_src", tf_src)){
+        tf_src = "base_link";
+    }
+
+    if(!nh.getParam ("tf_dst", tf_dst)){
+        tf_dst = "wrist_LEFT";
+    }
+
+}
+
 //calibration ... what else?
 void Helper::calibrate(){
 
+    //give calibration additional tries to avoid first tf lookup error
     for(int i = 1; i <= MAX_CALIBRATION_TRIES; i++){
         ROS_INFO("calibration try %i", i);
         if(lookupInitialTransform()){
@@ -56,10 +87,12 @@ void Helper::calibrate(){
             ros::shutdown();
         }
     }
+
 }
 
 //sets initial position
 bool Helper::lookupInitialTransform() {
+
     ROS_DEBUG("calibrating...");
 
     try{
@@ -75,11 +108,4 @@ bool Helper::lookupInitialTransform() {
     initial_translation = transform.getOrigin();
 
     return true;
-}
-
-void Helper::setup(std::string tf_src, std::string tf_dst) {
-    this->tf_src = tf_src;
-    this->tf_dst = tf_dst;
-    x_vel = 0.0;
-    y_vel = 0.0;
 }

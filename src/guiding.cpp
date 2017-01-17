@@ -1,40 +1,31 @@
 #include "ros/ros.h"
 #include "Helper.h"
 
-/**     variables       **/
-Helper helper;
-tf::TransformListener listener;
-ros::Publisher pub;
-std::string tf_src, tf_dst, topic_pub;
-
 /**     function prototypes     **/
-void readParams(ros::NodeHandle nh);
-
+void readParams(ros::NodeHandle nh, std::string& topic_pub);
 
 //takes care of all the node specific stuff
 int main(int argc, char **argv)
 {
-    //std::cout << "start"  << std::endl;
     //calibrate node with name
     ros::init(argc, argv, "meka_guiding");
 
     //create nodehandle
     ros::NodeHandle nh;
 
-    //read ros params
-    readParams(nh);
+    //create Helper
+    Helper helper(nh);
 
-    ROS_INFO("waiting for transform for .5s");
-    listener.waitForTransform(tf_src, tf_dst, ros::Time::now(), ros::Duration(0.5));
+    std::string topic_pub;
+
+    //read ros params
+    readParams(nh, topic_pub);
 
     //initialze publisher
-    pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 10);
+    ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 10);
 
-    //initialize helper
-    helper.setup(tf_src, tf_dst);
-    helper.calibrate();
-
-    //RATE
+    //set frequency to 10Hz
+    ros::Rate rate(10.0);
 
     while(nh.ok()){
         pub.publish(helper.controlJoint());
@@ -43,16 +34,8 @@ int main(int argc, char **argv)
     return 0;
 }
 
-//checks is parameter were given; otherwise uses default values
-void readParams(ros::NodeHandle nh){
-
-    if(!nh.getParam ("tf_src", tf_src)){
-        tf_src = "base_link";
-    }
-
-    if(!nh.getParam ("tf_dst", tf_dst)){
-        tf_dst = "wrist_LEFT";
-    }
+//reads parameter relevant to the main method
+void readParams(ros::NodeHandle nh, std::string& topic_pub){
 
     if(!nh.getParam ("topic_pub", topic_pub)){
         topic_pub = "/cmd_vel";
