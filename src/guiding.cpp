@@ -22,13 +22,14 @@ int main(int argc, char **argv)
     readParams(nh, topic_pub);
 
     //initialze publisher
-    ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 10);
+    ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
 
     //set frequency to 10Hz
-    ros::Rate rate(1.0);
+    ros::Rate rate(10.0);
 
     while(nh.ok()){
         pub.publish(helper.controlJoint());
+	rate.sleep();
     }
 
     return 0;
