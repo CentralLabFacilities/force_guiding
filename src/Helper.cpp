@@ -23,7 +23,7 @@ geometry_msgs::Twist Helper::controlJoint() {
 
     try{
         listener.lookupTransform(tf_src, tf_dst, ros::Time(0), transform);
-        ROS_DEBUG("Got Transform!");
+        ROS_DEBUG("Got Transform from %s to %s!", tf_src.c_str(), tf_dst.c_str());
     }
     catch (tf::TransformException ex){
         ROS_ERROR("%s",ex.what());
@@ -43,18 +43,33 @@ geometry_msgs::Twist Helper::controlJoint() {
 //calculates new velocities to set depending on the deflections of the input joint
 void Helper::calcVelocity(){
 
-    // deflection using the distance of the vectors
+    //deflection using the distance of the vectorelements
+    double x_dist = new_translation.getX() - initial_translation.getX();
+    double y_dist = new_translation.getY() - initial_translation.getY();
+
+    //for precise determination of the deadzone
     double dist = initial_translation.distance(new_translation);
 
-    // check for "negative defelction" for calculating negative velocites
-    if(initial_translation.getX() > new_translation.getX()){
-        dist = (-1) * VELOCITY_FACTOR * dist;
+    //calculation of x_vel
+    if((new_translation.getX() > (initial_translation.getX() * (1 + DEADLOCK_SIZE))) ||
+       (new_translation.getX() < (initial_translation.getX() * (1 - DEADLOCK_SIZE)))){
+
+        x_vel = x_dist * VELOCITY_FACTOR;
     } else {
-        dist = VELOCITY_FACTOR * dist;
+        x_vel = 0.0;
     }
 
-    //TODO actually calculate velocity
+    //calculation of y_vel
+    if((new_translation.getY() > (initial_translation.getY() * (1 + DEADLOCK_SIZE))) ||
+       (new_translation.getY() < (initial_translation.getY() * (1 - DEADLOCK_SIZE)))){
 
+        y_vel = y_dist * VELOCITY_FACTOR;
+    } else {
+        y_vel = 0.0;
+    }
+
+    ROS_DEBUG_STREAM( "VelocityX (dist, vel):[" << x_dist << ", " << x_vel << "]");
+    ROS_DEBUG_STREAM( "VelocityY (dist, vel):[" << y_dist << ", " << y_vel << "]");
     ROS_DEBUG_STREAM( "Translation{initial}: [" << initial_translation.getX() << ", " << initial_translation.getY() << ", " << initial_translation.getZ() << "]");
     ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_translation.getX() << ", " << new_translation.getY() << ", " << new_translation.getZ() << "]");
 
@@ -68,8 +83,6 @@ void Helper::calibrate(){
         ROS_INFO("calibration try %i", i);
         if(lookupInitialTransform()){
             ROS_INFO("successfully calibrated");
-            ros::shutdown();
-            break;
         } else if( i == MAX_CALIBRATION_TRIES){
             ROS_FATAL("failed to lookupInitialTransform after %i tries", MAX_CALIBRATION_TRIES);
             ros::shutdown();

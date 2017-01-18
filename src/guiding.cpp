@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 10);
 
     //set frequency to 10Hz
-    ros::Rate rate(10.0);
+    ros::Rate rate(1.0);
 
     while(nh.ok()){
         pub.publish(helper.controlJoint());

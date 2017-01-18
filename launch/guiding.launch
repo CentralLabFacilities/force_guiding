@@ -1,6 +1,4 @@
 <launch>
     <param name="topic_pub" value="/cmd_vel" />
-
     <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
-
 </launch>
