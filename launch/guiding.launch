@@ -1,7 +1,5 @@
 <launch>
     <param name="topic_pub" value="/cmd_vel" />
-    <param name="tf_src" value="base_link" />
-    <param name="tf_dst" value="wrist_LEFT" />
 
     <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
 

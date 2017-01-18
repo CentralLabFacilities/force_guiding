@@ -111,7 +111,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #   INCLUDE_DIRS include
 #  LIBRARIES meka_guiding
-  CATKIN_DEPENDS roscpp std_msgs geometry_msgs
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs dynamic_reconfigure
 #  DEPENDS system_lib
 )
 

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     //create Helper
-    Helper helper(nh);
+    Helper helper;
 
     std::string topic_pub;
 

@@ -1,9 +1,6 @@
 #include "Helper.h"
 
-Helper::Helper(ros::NodeHandle nh) {
-
-    //read classrelevant parameter
-    readParams(nh);
+Helper::Helper() {
 
     //waitin, otherwise the first tf would always fail
     ROS_INFO("waiting for transform for .5s");
@@ -12,6 +9,9 @@ Helper::Helper(ros::NodeHandle nh) {
     //initialize velocity variables
     x_vel = 0.0;
     y_vel = 0.0;
+
+    f = boost::bind(&Helper::parameterCallback, this, _1, _2);
+    server.setCallback(f);
 
     calibrate();
 
@@ -48,28 +48,15 @@ void Helper::calcVelocity(){
 
     // check for "negative defelction" for calculating negative velocites
     if(initial_translation.getX() > new_translation.getX()){
-        dist = (-1) * VELOCITY_FATOR * dist;
+        dist = (-1) * VELOCITY_FACTOR * dist;
     } else {
-        dist = VELOCITY_FATOR * dist;
+        dist = VELOCITY_FACTOR * dist;
     }
 
     //TODO actually calculate velocity
 
     ROS_DEBUG_STREAM( "Translation{initial}: [" << initial_translation.getX() << ", " << initial_translation.getY() << ", " << initial_translation.getZ() << "]");
     ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_translation.getX() << ", " << new_translation.getY() << ", " << new_translation.getZ() << "]");
-
-}
-
-//checks is parameter were given; otherwise uses default values
-void Helper::readParams(ros::NodeHandle nh){
-
-    if(!nh.getParam ("tf_src", tf_src)){
-        tf_src = "base_link";
-    }
-
-    if(!nh.getParam ("tf_dst", tf_dst)){
-        tf_dst = "wrist_LEFT";
-    }
 
 }
 
@@ -81,6 +68,7 @@ void Helper::calibrate(){
         ROS_INFO("calibration try %i", i);
         if(lookupInitialTransform()){
             ROS_INFO("successfully calibrated");
+            ros::shutdown();
             break;
         } else if( i == MAX_CALIBRATION_TRIES){
             ROS_FATAL("failed to lookupInitialTransform after %i tries", MAX_CALIBRATION_TRIES);
@@ -108,4 +96,20 @@ bool Helper::lookupInitialTransform() {
     initial_translation = transform.getOrigin();
 
     return true;
+}
+
+void Helper::parameterCallback(meka_guiding::GuidingConfig &config, uint32_t level) {
+    LINEAR_VELOCITY_UPPER = config.speed_lim_v;
+    ANGULAR_VELOCITY_UPPER = config.speed_lim_w;
+    VELOCITY_FACTOR = config.velocity_factor;
+    DEADLOCK_SIZE = config.deadlock_zone;
+
+    tf_src = config.tf_src.c_str();
+    tf_dst = config.tf_dst.c_str();
+
+    ROS_INFO(
+            "\n#######ParameterCallback\nLINEAR_VELOCITY_UPPER:     %f \nANGULAR_VELOCITY_UPPER:    %f \nVELOCITY_FACTOR:           %f \nDEADLOCK_SIZE:             %f \nSOURCE_FRAME:              %s \nTARGET_FRAME:              %s\n#######",
+            LINEAR_VELOCITY_UPPER, ANGULAR_VELOCITY_UPPER, VELOCITY_FACTOR, DEADLOCK_SIZE, tf_src.c_str(),
+            tf_dst.c_str());
+
 }
