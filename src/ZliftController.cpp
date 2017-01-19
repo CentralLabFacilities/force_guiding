@@ -1,7 +1,7 @@
-#include "Helper.h"
+#include "ZliftController.h"
 
 //prep-work
-void Helper::init(ros::NodeHandle nh){
+void ZliftController::init(ros::NodeHandle nh){
 
     readParams(nh);
 
@@ -23,7 +23,7 @@ void Helper::init(ros::NodeHandle nh){
 }
 
 //gets transform and sets the new position
-void Helper::controlJoint() {
+void ZliftController::controlJoint() {
 
     trajectory_msgs::JointTrajectoryPoint msg_point;
     trajectory_msgs::JointTrajectory msg_tra;
@@ -51,7 +51,7 @@ void Helper::controlJoint() {
 }
 
 //calculates new position to set depending on the deflections of the input joints
-void Helper::calcPos(){
+void ZliftController::calcPos(){
     double actual_zpos_;
 
     // deflection along the x-axis
@@ -108,7 +108,7 @@ void Helper::calcPos(){
 }
 
 //sets initial position
-bool Helper::calibrate() {
+bool ZliftController::calibrate() {
     ROS_DEBUG("calibrating...");
 
     try{
@@ -127,7 +127,7 @@ bool Helper::calibrate() {
 }
 
 //checks is parameter were given; otherwise uses default values
-void Helper::readParams(ros::NodeHandle nh){
+void ZliftController::readParams(ros::NodeHandle nh){
 
     if(!nh.getParam ("tf_src", tf_src)){
          tf_src = "base_link";
@@ -151,12 +151,12 @@ void Helper::readParams(ros::NodeHandle nh){
 }
 
 //getter for topic_sub
-std::string Helper::getTopicSub() {
+std::string ZliftController::getTopicSub() {
     return topic_sub;
 }
 
 //setter for actual z position
-void Helper::setActZ(double act_z) {
+void ZliftController::setActZ(double act_z) {
     actual_zpos_mutex.lock();
     this->actual_zpos = act_z;
     actual_zpos_mutex.unlock();

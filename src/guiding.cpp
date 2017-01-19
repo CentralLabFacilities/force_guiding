@@ -1,14 +1,14 @@
 #include "ros/ros.h"
-#include "Helper.h"
+#include "ZliftController.h"
 #include "control_msgs/JointTrajectoryControllerState.h"
 
 /** global variables **/
 
 /**
- * using shared_ptr, so the constructor is later.
- * otherwise, the nh's used in Helper would be initialised before ros::init
+ * using shared_ptr, so the constructor is called later.
+ * otherwise, the nh's used in ZliftController would be initialised before ros::init
  */
-boost::shared_ptr<Helper> helper;
+boost::shared_ptr<ZliftController> zlift_ctrl;
 
 /** function prototypes **/
 void callback(const control_msgs::JointTrajectoryControllerState::ConstPtr& msg);
@@ -22,15 +22,12 @@ int main(int argc, char **argv)
     //create nodehandle
     ros::NodeHandle nh;
 
-    //which service to wait for on meka?
-    //ros::service::waitForService("spawn");
-
-    //initialize helper
-    helper.reset(new Helper());
-    helper.get()->init(nh);
+    //initialize zlift_controller
+    zlift_ctrl.reset(new ZliftController());
+    zlift_ctrl.get()->init(nh);
 
     //create subscriber
-    ros::Subscriber sub = nh.subscribe(helper.get()->getTopicSub(), 500, callback);
+    ros::Subscriber sub = nh.subscribe(zlift_ctrl.get()->getTopicSub(), 500, callback);
 
     //do the spin
     ros::spin();
@@ -40,14 +37,9 @@ int main(int argc, char **argv)
 
 void callback(const control_msgs::JointTrajectoryControllerState::ConstPtr& msg){
 
-    //useful for debugging if msg has more then one joint
-    //for(float f : msg->actual.positions){
-    //   ROS_DEBUG("val %f", f);
-    //}
-
     //get the acutal position
-    helper.get()->setActZ(msg->actual.positions[0]);
+    zlift_ctrl.get()->setActZ(msg->actual.positions[0]);
 
     //control the joint
-    helper.get()->controlJoint();
+    zlift_ctrl.get()->controlJoint();
 }

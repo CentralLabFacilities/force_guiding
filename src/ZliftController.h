@@ -1,5 +1,5 @@
-#ifndef MEKA_GUIDING_HELPER_H
-#define MEKA_GUIDING_HELPER_H
+#ifndef MEKA_GUIDING_ZLIFTCONTROLLER_H
+#define MEKA_GUIDING_ZLIFTCONTROLLER_H
 
 
 #include "ros/ros.h"
@@ -7,7 +7,7 @@
 #include "trajectory_msgs/JointTrajectory.h"
 #include <mutex>
 
-class Helper {
+class ZliftController {
 
 public:
     /**     functions  **/
@@ -44,4 +44,4 @@ private:
 };
 
 
-#endif //MEKA_GUIDING_HELPER_H
+#endif //MEKA_GUIDING_ZLIFTCONTROLLER_H

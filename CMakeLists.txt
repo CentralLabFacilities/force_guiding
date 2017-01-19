@@ -130,7 +130,7 @@ include_directories(
 # add_dependencies(meka_guiding ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(meka_guiding src/guiding.cpp src/Helper.cpp)
+add_executable(meka_guiding src/guiding.cpp src/ZliftController.cpp)
 add_executable(command_bridge src/command_bridge.cpp)
 
 ## Add cmake target dependencies of the executable
