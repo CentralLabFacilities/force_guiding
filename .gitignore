@@ -28,6 +28,12 @@
 *.out
 *.app
 
-# IDE stuff
+# IDE
 .idea
 cmake-build-debug/
+nbproject/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+
