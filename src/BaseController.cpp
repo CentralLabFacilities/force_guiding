@@ -1,6 +1,6 @@
-#include "Helper.h"
+#include "BaseController.h"
 
-Helper::Helper() {
+BaseController::BaseController() {
 
     //waitin, otherwise the first tf would always fail
     ROS_INFO("waiting for transform for .5s");
@@ -10,7 +10,7 @@ Helper::Helper() {
     x_vel = 0.0;
     y_vel = 0.0;
 
-    f = boost::bind(&Helper::parameterCallback, this, _1, _2);
+    f = boost::bind(&BaseController::parameterCallback, this, _1, _2);
     server.setCallback(f);
 
     calibrate();
@@ -18,7 +18,7 @@ Helper::Helper() {
 }
 
 //gets transform and sets the new position
-geometry_msgs::Twist Helper::controlJoint() {
+geometry_msgs::Twist BaseController::controlJoint() {
     geometry_msgs::Twist twist;
 
     try{
@@ -41,7 +41,7 @@ geometry_msgs::Twist Helper::controlJoint() {
 }
 
 //calculates new velocities to set depending on the deflections of the input joint
-void Helper::calcVelocity(){
+void BaseController::calcVelocity(){
 
     //deflection using the distance of the vectorelements
     double x_dist = new_translation.getX() - initial_translation.getX();
@@ -76,7 +76,7 @@ void Helper::calcVelocity(){
 }
 
 //calibration ... what else?
-void Helper::calibrate(){
+void BaseController::calibrate(){
 
     //give calibration additional tries to avoid first tf lookup error
     for(int i = 1; i <= MAX_CALIBRATION_TRIES; i++){
@@ -92,7 +92,7 @@ void Helper::calibrate(){
 }
 
 //sets initial position
-bool Helper::lookupInitialTransform() {
+bool BaseController::lookupInitialTransform() {
 
     ROS_DEBUG("calibrating...");
 
@@ -111,7 +111,7 @@ bool Helper::lookupInitialTransform() {
     return true;
 }
 
-void Helper::parameterCallback(meka_guiding::GuidingConfig &config, uint32_t level) {
+void BaseController::parameterCallback(meka_guiding::GuidingConfig &config, uint32_t level) {
     LINEAR_VELOCITY_UPPER = config.speed_lim_v;
     ANGULAR_VELOCITY_UPPER = config.speed_lim_w;
     VELOCITY_FACTOR = config.velocity_factor;

@@ -8,11 +8,11 @@
 #include "dynamic_reconfigure/server.h"
 #include <meka_guiding/GuidingConfig.h>
 
-class Helper {
+class BaseController {
 
 public:
     /**     constructor     **/
-    Helper();
+    BaseController();
 
     /**     functions  **/
     geometry_msgs::Twist controlJoint();

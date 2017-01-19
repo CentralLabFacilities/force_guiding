@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "Helper.h"
+#include "BaseController.h"
 
 /**     function prototypes     **/
 void readParams(ros::NodeHandle nh, std::string& topic_pub);
@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     //create Helper
-    Helper helper;
+    BaseController base_ctrl;
 
     std::string topic_pub;
 
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     ros::Rate rate(10.0);
 
     while(nh.ok()){
-        pub.publish(helper.controlJoint());
+        pub.publish(base_ctrl.controlJoint());
 	rate.sleep();
     }
 
