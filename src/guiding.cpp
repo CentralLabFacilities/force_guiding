@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     //create nodehandle
     ros::NodeHandle nh;
 
-    //create Helper
+    //create base_controller
     BaseController base_ctrl;
 
     std::string topic_pub;

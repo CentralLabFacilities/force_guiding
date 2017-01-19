@@ -1,5 +1,5 @@
-#ifndef MEKA_GUIDING_HELPER_H
-#define MEKA_GUIDING_HELPER_H
+#ifndef MEKA_GUIDING_BASECONTROLLER_H
+#define MEKA_GUIDING_BASECONTROLLER_H
 
 
 #include "ros/ros.h"
@@ -53,4 +53,4 @@ private:
 };
 
 
-#endif //MEKA_GUIDING_HELPER_H
+#endif //MEKA_GUIDING_BASECONTROLLER_H
