@@ -83,6 +83,7 @@ void BaseController::calibrate(){
         ROS_INFO("calibration try %i", i);
         if(lookupInitialTransform()){
             ROS_INFO("successfully calibrated");
+            break;
         } else if( i == MAX_CALIBRATION_TRIES){
             ROS_FATAL("failed to lookupInitialTransform after %i tries", MAX_CALIBRATION_TRIES);
             ros::shutdown();
