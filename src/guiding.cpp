@@ -29,7 +29,8 @@ int main(int argc, char **argv)
 
     while(nh.ok()){
         pub.publish(base_ctrl.controlJoint());
-	rate.sleep();
+	    rate.sleep();
+        ros::spinOnce();
     }
 
     return 0;
