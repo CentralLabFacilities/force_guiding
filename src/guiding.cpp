@@ -1,8 +1,10 @@
 #include "ros/ros.h"
 #include "BaseController.h"
+#include "std_msgs/Float64MultiArray.h"
 
 /**     function prototypes     **/
-void readParams(ros::NodeHandle nh, std::string& topic_pub);
+void readParams(ros::NodeHandle nh, std::string& topic_pub, std::string& topic_stiff, int& jointcount, double& stiffness);
+void publishStiffness(ros::NodeHandle nh, std::string& topic_stiff, int jointcount, double stiffness);
 
 //takes care of all the node specific stuff
 int main(int argc, char **argv)
@@ -17,9 +19,14 @@ int main(int argc, char **argv)
     BaseController base_ctrl;
 
     std::string topic_pub;
+    std::string topic_stiff;
+    int jointcount;
+    double stiffness;
 
     //read ros params
-    readParams(nh, topic_pub);
+    readParams(nh, topic_pub, topic_stiff, jointcount, stiffness);
+    
+    publishStiffness(nh, topic_stiff, jointcount, stiffness);
 
     //initialze publisher
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
@@ -37,10 +44,35 @@ int main(int argc, char **argv)
 }
 
 //reads parameter relevant to the main method
-void readParams(ros::NodeHandle nh, std::string& topic_pub){
+void readParams(ros::NodeHandle nh, std::string& topic_pub, std::string& topic_stiff, int& jointcount, double& stiffness){
 
     if(!nh.getParam ("topic_pub", topic_pub)){
         topic_pub = "/cmd_vel";
     }
+    ROS_INFO("ERAD");
+    if(!nh.getParam ("topic_stiff", topic_stiff)){
+        topic_stiff = "/meka_roscontrol/stiffness_controller/command"; //change to real topic
+    }
+    
+    if(!nh.getParam ("jointcount", jointcount)){
+        jointcount = 29; // fallback for meka's jointcount
+    }
+    
+    if(!nh.getParam ("stiffness", stiffness)){
+        stiffness = 0.3;  // default stiffness
+    }
 
+}
+
+void publishStiffness(ros::NodeHandle nh, std::string& topic_stiff, int jointcount, double stiffness){
+    ros::Publisher stiff_pub = nh.advertise<std_msgs::Float64MultiArray>(topic_stiff, 1);
+    std_msgs::Float64MultiArray stiff_array;
+    
+    for(int i = 0; i < jointcount; i++){
+        stiff_array.data.push_back(stiffness);
+    }
+    
+    stiff_pub.publish(stiff_array);
+    
+    ros::spinOnce();
 }
