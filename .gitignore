@@ -32,6 +32,8 @@
 .idea
 cmake-build-debug/
 nbproject/
+.kdev4/
+meka_guiding.kdev4
 
 # CMake 
 CMakeFiles/
