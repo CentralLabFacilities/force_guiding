@@ -137,13 +137,19 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(meka_guiding src/guiding.cpp src/BaseController.cpp)
+add_executable(stiffness_publisher src/stiffness_publisher.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(meka_guiding ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}  ${PROJECT_NAME}_gencfg)
+add_dependencies(stiffness_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(meka_guiding
+        ${catkin_LIBRARIES}
+)
+
+target_link_libraries(stiffness_publisher
         ${catkin_LIBRARIES}
 )
 
