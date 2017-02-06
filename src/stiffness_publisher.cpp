@@ -9,25 +9,35 @@ int main(int argc, char **argv)
 
     //create nodehandle
     ros::NodeHandle nh;
-    
+
     std::string topic_stiff = "/meka_roscontrol/stiffness_controller/command";
     int jointcount = 29;
-    double stiffness;
-    
-    //get stiffness from rosparam; otherwise set default
-    if(!nh.getParam ("stiffness", stiffness)){
-        stiffness = 0.3;  // default stiffness
+    int arm_count = 24; //first 24 joints are arms & hands
+    double arm_stiff, torso_stiff;
+
+    //get stiffness for arms and hands from rosparam; otherwise set default
+    if(!nh.getParam ("stiffness_arm", arm_stiff)){
+        arm_stiff = 0.3;  // default stiffness
+    }
+
+    //get stiffness for torso, head and zlift from rosparam; otherwise set default
+    if(!nh.getParam ("stiffness_torso", torso_stiff)){
+        torso_stiff = 0.5;  // default stiffness
     }
 
     ros::Rate rate(10.0);
-    
+
    //setup publisher and message
     ros::Publisher stiff_pub = nh.advertise<std_msgs::Float64MultiArray>(topic_stiff, 1000);
     std_msgs::Float64MultiArray stiff_array;
 
     //fill with desired stiffness
-    for (int i = 0; i < jointcount; i++) {
-        stiff_array.data.push_back(stiffness);
+    for (int i = 0; i < arm_count; i++) {
+        stiff_array.data.push_back(arm_stiff);
+    }
+
+    for (int i = arm_count; i < jointcount; i++) {
+        stiff_array.data.push_back(torso_stiff);
     }
 
     //generate timeout
@@ -46,6 +56,6 @@ int main(int argc, char **argv)
     ros::spinOnce();
 
     ROS_INFO("DONE");
-    
+
     return 0;
 }
