@@ -16,13 +16,13 @@ int main(int argc, char **argv)
     double arm_stiff, torso_stiff;
 
     //get stiffness for arms and hands from rosparam; otherwise set default
-    if(!nh.getParam ("stiffness_arm", arm_stiff)){
+    if(!nh.getParam ("astiff", arm_stiff)){
         arm_stiff = 0.3;  // default stiffness
     }
 
     //get stiffness for torso, head and zlift from rosparam; otherwise set default
-    if(!nh.getParam ("stiffness_torso", torso_stiff)){
-        torso_stiff = 0.5;  // default stiffness
+    if(!nh.getParam ("tstiff", torso_stiff)){
+        torso_stiff = 0.7;  // default stiffness
     }
 
     ros::Rate rate(10.0);
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     }
 
     //publish stiffnessarray
-    ROS_INFO("Setting stiffness to %f for %d joints on topic %s", stiffness, jointcount, topic_stiff.c_str());
+    ROS_INFO("Stiffness for arms & hands: %f; torso: %f", arm_stiff, torso_stiff);
     stiff_pub.publish(stiff_array);
     ros::spinOnce();
 
