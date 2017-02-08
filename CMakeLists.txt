@@ -161,7 +161,7 @@ roslaunch_add_file_check(launch)
 #############
 
 install(TARGETS ${PROJECT_NAME} stiffness_publisher
-        DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(DIRECTORY launch
