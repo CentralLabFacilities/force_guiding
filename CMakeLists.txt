@@ -160,7 +160,7 @@ roslaunch_add_file_check(launch)
 ## Install ##
 #############
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} src/stiffness_publisher
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
