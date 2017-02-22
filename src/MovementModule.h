@@ -35,7 +35,7 @@ private:
     
     /**     constants   **/
     const double VELOCITY_LOWER = 0.0;
-    const int MAX_CALIBRATION_TRIES = 5;
+    const int MAX_CALIBRATION_TRIES = 5;  //--> error handling
 
     /**     variables   **/
     std::string tf_src;
