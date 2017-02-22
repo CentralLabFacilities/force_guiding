@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "BaseController.h"
+#include "Controller.h"
 #include "std_msgs/Float64MultiArray.h"
 
 /**     function prototypes     **/
@@ -15,9 +15,8 @@ int main(int argc, char **argv)
     //create nodehandle
     ros::NodeHandle nh;
 
-    //create base_controller
-    BaseController base_ctrl("test");
-    BaseController base_ctrl2("tst2");
+    //create controller
+    Controller ctrl();
 
     std::string topic_pub;
     std::string topic_stiff;
