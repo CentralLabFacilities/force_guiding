@@ -6,13 +6,14 @@
 #include "tf/transform_listener.h"
 #include "geometry_msgs/Twist.h"
 #include "dynamic_reconfigure/server.h"
+#include <typeinfo>
 #include <meka_guiding/GuidingConfig.h>
 
 class BaseController {
 
 public:
     /**     constructor     **/
-    BaseController();
+    BaseController(std::string name);
 
     /**     functions  **/
     geometry_msgs::Twist controlJoint();
@@ -23,8 +24,8 @@ private:
     const double VELOCITY_LOWER = 0.0;
     const int MAX_CALIBRATION_TRIES = 5;
 
-
-
+    std::string nameprefix = "~";
+    std::string nhname;
 
     /**     variables   **/
     tf::TransformListener listener;
@@ -41,14 +42,16 @@ private:
 
     std::string tf_src = "/base_link";
     std::string tf_dst = "/wrist_LEFT";
-
-    dynamic_reconfigure::Server<meka_guiding::GuidingConfig> server;
+    
+//    /boost::recursive_mutex dynamic_reconfigure_mutex_;
+    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::GuidingConfig> > dyn_reconf_server_ptr_;
     dynamic_reconfigure::Server<meka_guiding::GuidingConfig>::CallbackType f;
-
+    
     /**     functions   **/
     void calibrate();
     void calcVelocity();
     bool lookupInitialTransform();
+//    /void getFeatures(meka_guiding::GuidingConfig &config);
 
 };
 

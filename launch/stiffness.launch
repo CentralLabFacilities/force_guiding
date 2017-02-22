@@ -1,6 +1,6 @@
 <launch>
-    <param name="astiff" value="0.1" />
-    <param name="tstiff" value="0.5" />
+    <param name="astiff" value="$(arg astiff)" />
+    <param name="tstiff" value="$(arg tstiff)" />
 
     <node name="stiffness_publisher" pkg="meka_guiding" type="stiffness_publisher"  output="screen" />
 </launch>

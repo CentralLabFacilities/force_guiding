@@ -1,6 +1,12 @@
 #include "BaseController.h"
 
-BaseController::BaseController() {
+BaseController::BaseController(std::string name) {
+
+    nhname = nameprefix.append(name);
+    ros::NodeHandle nh_(nhname);
+    
+    dyn_reconf_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::GuidingConfig>(nh_));
+    
 
     //waitin, otherwise the first tf would always fail
     ROS_INFO("waiting for transform for .5s");
@@ -9,11 +15,11 @@ BaseController::BaseController() {
     //initialize velocity variables
     x_vel = 0.0;
     y_vel = 0.0;
-
+    
     f = boost::bind(&BaseController::parameterCallback, this, _1, _2);
-    server.setCallback(f);
-
-    calibrate();
+    dyn_reconf_server_ptr_.get()->setCallback(f);
+    
+    //calibrate();
 
 }
 
@@ -89,7 +95,7 @@ void BaseController::calibrate(){
             ros::shutdown();
         }
     }
-
+    
 }
 
 //sets initial position
@@ -122,8 +128,21 @@ void BaseController::parameterCallback(meka_guiding::GuidingConfig &config, uint
     tf_dst = config.tf_dst.c_str();
 
     ROS_INFO(
-            "\n#######ParameterCallback\nLINEAR_VELOCITY_UPPER:     %f \nANGULAR_VELOCITY_UPPER:    %f \nVELOCITY_FACTOR:           %f \nDEADLOCK_SIZE:             %f \nSOURCE_FRAME:              %s \nTARGET_FRAME:              %s\n#######",
+            "\n#######ParameterCallback %s \nLINEAR_VELOCITY_UPPER:     %f \nANGULAR_VELOCITY_UPPER:    %f \nVELOCITY_FACTOR:           %f \nDEADLOCK_SIZE:             %f \nSOURCE_FRAME:              %s \nTARGET_FRAME:              %s\n#######",
+            nhname.c_str(),
             LINEAR_VELOCITY_UPPER, ANGULAR_VELOCITY_UPPER, VELOCITY_FACTOR, DEADLOCK_SIZE, tf_src.c_str(),
             tf_dst.c_str());
 
 }
+
+/*
+void BaseController::getFeatures(meka_guiding::GuidingConfig &config) {
+	// I wrote this macro because I couldn't find a way to read the configs parameters generically,
+	// and with this macro the actual feature name only has to be named once. Improvements welcome.
+	#define MAKRO_GET_FEATURE(NAME)	\
+		ROS_DEBUG("Current hardware feature %s is %s", #NAME, config.NAME?"True":"False"); \
+		config.NAME = getFeature<std::typeof(config.NAME)>(std::string(#NAME))
+
+	MAKRO_GET_FEATURE(velocity_factor);
+        MAKRO_GET_FEATURE(deadlock_zone);
+}*/

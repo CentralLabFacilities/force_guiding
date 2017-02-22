@@ -16,7 +16,8 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     //create base_controller
-    BaseController base_ctrl;
+    BaseController base_ctrl("test");
+    BaseController base_ctrl2("tst2");
 
     std::string topic_pub;
     std::string topic_stiff;
@@ -30,13 +31,13 @@ int main(int argc, char **argv)
     ros::Rate rate(10.0);
 
     //well ... publish stiffness!
-    publishStiffness(nh, rate, topic_stiff, jointcount, stiffness);
+    //publishStiffness(nh, rate, topic_stiff, jointcount, stiffness);
     
     //initialze publisher
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
 
     while(nh.ok()){
-        pub.publish(base_ctrl.controlJoint());
+        //pub.publish(base_ctrl.controlJoint());
 	rate.sleep();
         ros::spinOnce();
     }
