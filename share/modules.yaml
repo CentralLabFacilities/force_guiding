@@ -1,0 +1,19 @@
+ModuleList:
+
+- name:			TestModule
+  tf_src:		panplate
+  tf_dst:		neck_plate
+  tf_key:		3
+  dir_key:		2
+  velocity_factor:	0.3
+  cmd_key:		5
+
+- name:                 TestModule2
+  tf_src:               panplatasd
+  tf_dst:               neck_pe
+  tf_key:               1
+  dir_key:              1
+  velocity_factor:      0.6
+  cmd_key:              3
+
+
