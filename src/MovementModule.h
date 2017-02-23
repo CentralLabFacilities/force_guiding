@@ -11,13 +11,14 @@
 #include "ros/ros.h"
 #include "tf/transform_listener.h"
 #include "dynamic_reconfigure/server.h"
+#include "EnumKeys.h"
 #include <meka_guiding/ModuleConfig.h>
 
 class MovementModule {
 
 public:
     /**     constructor     **/
-    MovementModule(std::string name, std::string tf_src, std::string tf_dst, int tf_key, int dir_key, float velocity_factor);
+    MovementModule(std::string name, std::string tf_src, std::string tf_dst, tf_key tf_key, cmd_key dir, float velocity_factor);
 
     /**     functions  **/
     
@@ -27,8 +28,8 @@ private:
     std::string tf_src_;
     std::string tf_dst_;
     
-    int tf_key_;
-    int dir_key_;
+    tf_key tf_key_;
+    cmd_key dir_key_;
     
     double velocity_upper_ = 5.0;
     double velocity_factor_ = 1.0;

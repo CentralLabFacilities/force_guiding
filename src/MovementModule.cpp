@@ -1,6 +1,6 @@
 #include "MovementModule.h"
 
-MovementModule::MovementModule(std::string name, std::string tf_src, std::string tf_dst, int tf_key, int dir_key, float velocity_factor){
+MovementModule::MovementModule(std::string name, std::string tf_src, std::string tf_dst, tf_key tf_key, cmd_key dir, float velocity_factor){
     ROS_DEBUG_STREAM("creating MovementModule " << name);
 
     nhname_ = nameprefix_.append(name);
@@ -8,12 +8,12 @@ MovementModule::MovementModule(std::string name, std::string tf_src, std::string
     this->tf_src_ = tf_src;
     this->tf_dst_ = tf_dst;
     this->tf_key_ = tf_key;
-    this->dir_key_ = dir_key;
+    this->dir_key_ = dir;
     this->velocity_factor_ = velocity_factor;
     
     initializeDynamicReconfigure();
     
-    calibrate();
+    //calibrate();
 }
 
 void MovementModule::initializeDynamicReconfigure(){
@@ -30,8 +30,8 @@ void MovementModule::initializeDynamicReconfigure(){
     
     config.tf_src = this->tf_src_;
     config.tf_dst = this->tf_dst_;
-    config.tf_key = this->tf_key_;
-    config.dir_key = this->dir_key_;
+    config.tf_key = static_cast<int >(this->tf_key_);
+    config.dir_key = static_cast<int>(this->dir_key_);
     config.velocity_factor = this->velocity_factor_;
     
     boost::recursive_mutex::scoped_lock dyn_reconf_lock(dyn_reconfigure_mutex_);

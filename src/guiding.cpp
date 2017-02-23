@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "geometry_msgs/Twist.h"
+#include "EnumKeys.h"
 #include "MovementModule.h"
 #include <meka_guiding/ControllerConfig.h>
 
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
     readParams(nh, topic_pub, topic_stiff, jointcount, stiffness);
 
     // initialize modules
-    MovementModule mv("hello", "base_link", "panplate", 3, 2, 0.2);
+    MovementModule mv("hello", "base_link", "panplate", tf_key(1), cmd_key::LINEAR_Y, 0.2);
 
     //set frequency to 10Hz
     ros::Rate rate(10.0);
