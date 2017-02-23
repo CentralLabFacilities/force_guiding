@@ -23,4 +23,10 @@ enum class cmd_key {
     ANGUALR_Z
 };
 
+enum class dir_key {
+    POSITIVE,
+    NEGATIVE,
+    BIDIRECTIONAL
+};
+
 #endif //MEKA_GUIDING_ENUMKEYS_H

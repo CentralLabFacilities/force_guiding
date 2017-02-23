@@ -18,7 +18,7 @@ class MovementModule {
 
 public:
     /**     constructor     **/
-    MovementModule(std::string name, std::string tf_src, std::string tf_dst, tf_key tf_key, cmd_key dir, float velocity_factor);
+    MovementModule(std::string name, std::string tf_src, std::string tf_dst, tf_key tf_key, dir_key dir, float velocity_factor);
 
     /**     functions  **/
     
@@ -29,7 +29,7 @@ private:
     std::string tf_dst_;
     
     tf_key tf_key_;
-    cmd_key dir_key_;
+    dir_key dir_key_;
     
     double velocity_upper_ = 5.0;
     double velocity_factor_ = 1.0;
