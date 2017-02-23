@@ -17,21 +17,28 @@ class MovementModule {
 
 public:
     /**     constructor     **/
-    MovementModule(std::string name);
-    MovementModule(std::string name, std::string tf_src, std::string tf_dst, int tf_key, int cmd_key, float velocity_factor);
+    MovementModule(std::string name, std::string tf_src, std::string tf_dst, int tf_key, int dir_key, float velocity_factor);
 
     /**     functions  **/
-    void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
+    
 
 private:
-        /**     dynamic     **/
-    double LINEAR_VELOCITY_UPPER = 5.0;
-    double ANGULAR_VELOCITY_UPPER = 10.0;
-    double VELOCITY_FACTOR = 1.0;
-    double DEADLOCK_SIZE = 0.1;
-    bool ACTIVATION_TOGGLE = true;
+    /**     dynamic     **/
+    std::string tf_src_;
+    std::string tf_dst_;
+    
+    int tf_key_;
+    int dir_key_;
+    
+    double velocity_upper_ = 5.0;
+    double velocity_factor_ = 1.0;
+    double deadzone_factor_ = 0.1;
+    
+    bool activation_toggle_ = true;
+    bool reflection_toggle_ = false;
 
-    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconf_server_ptr_;
+    boost::recursive_mutex dyn_reconfigure_mutex_;
+    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconfigure_server_ptr_;
     dynamic_reconfigure::Server<meka_guiding::ModuleConfig>::CallbackType f_;
     
     /**     constants   **/
@@ -39,8 +46,6 @@ private:
     const int MAX_CALIBRATION_TRIES = 5;  //--> error handling
 
     /**     variables   **/
-    std::string tf_src;
-    std::string tf_dst;
     std::string nameprefix_ = "~";
     std::string nhname_;
     
@@ -48,12 +53,15 @@ private:
     tf::StampedTransform transform;
     tf::Vector3 initial_translation, new_translation;
 
-    double x_vel, y_vel;
+    double velocity_;
     
     /**     functions   **/
     void calibrate();
     void calcVelocity();
     bool lookupInitialTransform();
+    void initializeDynamicReconfigure();
+    
+    void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
 };
 
 

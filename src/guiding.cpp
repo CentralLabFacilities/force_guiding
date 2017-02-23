@@ -1,8 +1,8 @@
 #include "ros/ros.h"
-#include "Controller.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "geometry_msgs/Twist.h"
 #include "MovementModule.h"
+#include <meka_guiding/ControllerConfig.h>
 
 /**     function prototypes     **/
 void readParams(ros::NodeHandle nh, std::string& topic_pub, std::string& topic_stiff, int& jointcount, double& stiffness);
@@ -34,8 +34,7 @@ int main(int argc, char **argv)
     readParams(nh, topic_pub, topic_stiff, jointcount, stiffness);
 
     // initialize modules
-    //MovementModule mv("hello");
-    //MovementModule mv2("he");
+    MovementModule mv("hello", "base_link", "panplate", 3, 2, 0.2);
 
     //set frequency to 10Hz
     ros::Rate rate(10.0);
@@ -47,8 +46,7 @@ int main(int argc, char **argv)
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
 
     while(nh.ok()){
-        //pub.publish(base_ctrl.controlJoint());
-	    rate.sleep();
+	rate.sleep();
         ros::spinOnce();
     }
     
@@ -78,6 +76,10 @@ void readParams(ros::NodeHandle nh, std::string& topic_pub, std::string& topic_s
 
 }
 
+void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
+    ROS_INFO_STREAM("ControllerReconfiguration");
+}
+
 void publishStiffness(ros::NodeHandle nh, ros::Rate rate, std::string& topic_stiff, int jointcount, double stiffness) {
 
     //setup publisher and message
@@ -100,12 +102,7 @@ void publishStiffness(ros::NodeHandle nh, ros::Rate rate, std::string& topic_sti
     }
 
     //publish stiffnessarray
-    ROS_INFO("Setting stiffness to %f for %d jjoints on topic %s", stiffness, jointcount, topic_stiff.c_str());
+    ROS_INFO("Setting stiffness to %f for %d joints on topic %s", stiffness, jointcount, topic_stiff.c_str());
     stiff_pub.publish(stiff_array);
     ros::spinOnce();
-}
-
-
-void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
-    ROS_DEBUG_STREAM("ControllerReconfiguration");
 }
