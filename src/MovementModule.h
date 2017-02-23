@@ -11,16 +11,17 @@
 #include "ros/ros.h"
 #include "tf/transform_listener.h"
 #include "dynamic_reconfigure/server.h"
-#include <meka_guiding/GuidingConfig.h>
+#include <meka_guiding/ModuleConfig.h>
 
 class MovementModule {
 
 public:
     /**     constructor     **/
-    MovementModule();
+    MovementModule(std::string name);
+    MovementModule(std::string name, std::string tf_src, std::string tf_dst, int tf_key, int cmd_key, float velocity_factor);
 
     /**     functions  **/
-    void parameterCallback(meka_guiding::GuidingConfig &config, uint32_t level);
+    void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
 
 private:
         /**     dynamic     **/
@@ -30,8 +31,8 @@ private:
     double DEADLOCK_SIZE = 0.1;
     bool ACTIVATION_TOGGLE = true;
 
-    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::GuidingConfig> > dyn_reconf_server_ptr_;
-    dynamic_reconfigure::Server<meka_guiding::GuidingConfig>::CallbackType f;
+    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconf_server_ptr_;
+    dynamic_reconfigure::Server<meka_guiding::ModuleConfig>::CallbackType f_;
     
     /**     constants   **/
     const double VELOCITY_LOWER = 0.0;
@@ -40,8 +41,8 @@ private:
     /**     variables   **/
     std::string tf_src;
     std::string tf_dst;
-    std::string nameprefix = "~";
-    std::string nhname;
+    std::string nameprefix_ = "~";
+    std::string nhname_;
     
     tf::TransformListener listener;
     tf::StampedTransform transform;

@@ -15,7 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
         )
 
 generate_dynamic_reconfigure_options(
-        cfg/Guiding.cfg
+        cfg/Module.cfg
+        cfg/Controller.cfg
 )
 
 
@@ -136,7 +137,7 @@ include_directories(
 # add_dependencies(meka_guiding ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(meka_guiding src/guiding.cpp src/Controller.cpp)
+add_executable(meka_guiding src/guiding.cpp src/Controller.cpp src/MovementModule.cpp)
 add_executable(stiffness_publisher src/stiffness_publisher.cpp)
 
 ## Add cmake target dependencies of the executable

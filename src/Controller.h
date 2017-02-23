@@ -5,27 +5,28 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "dynamic_reconfigure/server.h"
-#include <meka_guiding/GuidingConfig.h>
+#include "MovementModule.h"
+#include <meka_guiding/ControllerConfig.h>
 
 class Controller {
 
 public:
     /**     constructor     **/
-    Controller();
+    Controller(ros::NodeHandle nh);
 
     /**     functions  **/
     geometry_msgs::Twist controlJoint();
-    void parameterCallback(meka_guiding::GuidingConfig &config, uint32_t level);
+    void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level);
 
 private:
     /**     dynamic     **/
-    dynamic_reconfigure::Server<meka_guiding::GuidingConfig> dyn_reconf_server_;
-    dynamic_reconfigure::Server<meka_guiding::GuidingConfig>::CallbackType f_;
-    
+    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ControllerConfig> > dyn_reconf_server_ptr_;
+    dynamic_reconfigure::Server<meka_guiding::ControllerConfig>::CallbackType f_;
+
     /**     constants   **/
 
     /**     variables   **/
-    
+
     /**     functions  **/
 };
 

@@ -1,10 +1,13 @@
 #include "ros/ros.h"
 #include "Controller.h"
 #include "std_msgs/Float64MultiArray.h"
+#include "geometry_msgs/Twist.h"
+#include "MovementModule.h"
 
 /**     function prototypes     **/
 void readParams(ros::NodeHandle nh, std::string& topic_pub, std::string& topic_stiff, int& jointcount, double& stiffness);
 void publishStiffness(ros::NodeHandle nh, ros::Rate rate, std::string& topic_stiff, int jointcount, double stiffness);
+void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level);
 
 //takes care of all the node specific stuff
 int main(int argc, char **argv)
@@ -15,8 +18,12 @@ int main(int argc, char **argv)
     //create nodehandle
     ros::NodeHandle nh;
 
-    //create controller
-    Controller ctrl();
+    //setup dynamic_reconfigure
+    dynamic_reconfigure::Server<meka_guiding::ControllerConfig> dyn_reconf_server_;
+    dynamic_reconfigure::Server<meka_guiding::ControllerConfig>::CallbackType f_;
+
+    f_ = boost::bind(&parameterCallback, _1, _2);
+    dyn_reconf_server_.setCallback(f_);
 
     std::string topic_pub;
     std::string topic_stiff;
@@ -25,6 +32,10 @@ int main(int argc, char **argv)
 
     //read ros params
     readParams(nh, topic_pub, topic_stiff, jointcount, stiffness);
+
+    // initialize modules
+    //MovementModule mv("hello");
+    //MovementModule mv2("he");
 
     //set frequency to 10Hz
     ros::Rate rate(10.0);
@@ -37,7 +48,7 @@ int main(int argc, char **argv)
 
     while(nh.ok()){
         //pub.publish(base_ctrl.controlJoint());
-	rate.sleep();
+	    rate.sleep();
         ros::spinOnce();
     }
     
@@ -92,4 +103,9 @@ void publishStiffness(ros::NodeHandle nh, ros::Rate rate, std::string& topic_sti
     ROS_INFO("Setting stiffness to %f for %d jjoints on topic %s", stiffness, jointcount, topic_stiff.c_str());
     stiff_pub.publish(stiff_array);
     ros::spinOnce();
+}
+
+
+void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
+    ROS_DEBUG_STREAM("ControllerReconfiguration");
 }

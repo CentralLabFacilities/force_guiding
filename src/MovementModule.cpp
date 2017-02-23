@@ -1,7 +1,15 @@
 #include "MovementModule.h"
 
-MovementModule::MovementModule(){
-    ROS_ERROR("I'm a placeholder!");
+MovementModule::MovementModule(std::string name){
+    ROS_DEBUG_STREAM("MovementModule");
+
+    nhname_ = nameprefix_.append(name);
+
+    ros::NodeHandle private_nh(nhname_);
+
+    dyn_reconf_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(private_nh));
+    f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
+    dyn_reconf_server_ptr_.get()->setCallback(f_);
 }
 
 //calculates new velocities to set depending on the deflections of the input joint
@@ -74,4 +82,21 @@ bool MovementModule::lookupInitialTransform() {
     initial_translation = transform.getOrigin();
 
     return true;
+}
+
+void MovementModule::parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level) {
+    LINEAR_VELOCITY_UPPER = config.speed_lim_v;
+    ANGULAR_VELOCITY_UPPER = config.speed_lim_w;
+    VELOCITY_FACTOR = config.velocity_factor;
+    DEADLOCK_SIZE = config.deadlock_zone;
+
+    tf_src = config.tf_src.c_str();
+    tf_dst = config.tf_dst.c_str();
+
+    ROS_DEBUG_STREAM("ModuleCallback");
+    /*ROS_INFO(
+            "\n#######ParameterCallback\nLINEAR_VELOCITY_UPPER:     %f \nANGULAR_VELOCITY_UPPER:    %f \nVELOCITY_FACTOR:           %f \nDEADLOCK_SIZE:             %f \nSOURCE_FRAME:              %s \nTARGET_FRAME:              %s\n#######",
+            LINEAR_VELOCITY_UPPER, ANGULAR_VELOCITY_UPPER, VELOCITY_FACTOR, DEADLOCK_SIZE, tf_src.c_str(),
+            tf_dst.c_str());
+*/
 }
