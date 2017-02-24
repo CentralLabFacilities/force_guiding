@@ -47,21 +47,18 @@ private:
     const int MAX_CALIBRATION_TRIES = 5;  //--> error handling
 
     /**     variables   **/
-    std::string nameprefix_ = "~";
-    std::string nhname_;
+    std::string name_;
     
     tf::TransformListener listener;
     tf::StampedTransform transform;
-    tf::Vector3 initial_translation, new_translation;
 
-    double velocity_;
+    double reference_position_;
     
     /**     functions   **/
     void calibrate();
     void calcVelocity();
-    bool lookupInitialTransform();
+    double getPositionByKey();
     void initializeDynamicReconfigure();
-    
     void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
 };
 

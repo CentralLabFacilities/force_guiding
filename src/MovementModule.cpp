@@ -3,7 +3,7 @@
 MovementModule::MovementModule(std::string name, std::string tf_src, std::string tf_dst, tf_key tf_key, dir_key dir_key, float velocity_factor){
     ROS_DEBUG_STREAM("creating MovementModule " << name);
 
-    nhname_ = nameprefix_.append(name);
+    name_ = std::string("~").append(name);
     
     this->tf_src_ = tf_src;
     this->tf_dst_ = tf_dst;
@@ -13,7 +13,7 @@ MovementModule::MovementModule(std::string name, std::string tf_src, std::string
     
     initializeDynamicReconfigure();
     
-    //calibrate();
+    calibrate();
 }
 
 void MovementModule::initializeDynamicReconfigure(){
@@ -21,7 +21,7 @@ void MovementModule::initializeDynamicReconfigure(){
     /* https://github.com/felix-kolbe/scitos_metralabs/blob/master/metralabs_ros/src/ScitosBase.cpp#L245 */
     
     //create dyn_reconf server with private node handle
-    ros::NodeHandle private_nh(nhname_);
+    ros::NodeHandle private_nh(name_);
     dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(dyn_reconfigure_mutex_, private_nh));
     
     //initially set config with module parameter 
@@ -76,31 +76,31 @@ void MovementModule::calcVelocity(){
     ROS_DEBUG_STREAM( "VelocityY (dist, vel):[" << y_dist << ", " << y_vel << "]");
     ROS_DEBUG_STREAM( "Translation{initial}: [" << initial_translation.getX() << ", " << initial_translation.getY() << ", " << initial_translation.getZ() << "]");
     ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_translation.getX() << ", " << new_translation.getY() << ", " << new_translation.getZ() << "]"); */
-
-}
-
-//calibration ... what else?
-void MovementModule::calibrate(){
-
-    //give calibration additional tries to avoid first tf lookup error
-    for(int i = 1; i <= MAX_CALIBRATION_TRIES; i++){
-        ROS_INFO("calibration try %i", i);
-        if(lookupInitialTransform()){
-            ROS_INFO("successfully calibrated");
-            break;
-        } else if( i == MAX_CALIBRATION_TRIES){
-            ROS_FATAL("failed to lookupInitialTransform after %i tries", MAX_CALIBRATION_TRIES);
-            ros::shutdown();
-        }
+    
+    double dist, velocity, actual_position;
+    
+    actual_position = getPositionByKey();
+    
+    switch(dir_key_){
+        case dir_key::POSITIVE:
+            /* calculate */
+        case dir_key::NEGATIVE:
+            /* calculate */
+        case dir_key::BIDIRECTIONAL:
+            /* calculate */
+            dist = 0;
     }
     
 }
 
-//sets initial position
-bool MovementModule::lookupInitialTransform() {
+//sets reference position
+void MovementModule::calibrate(){
+    reference_position_ = getPositionByKey();
+}
 
-    ROS_DEBUG("calibrating...");
-
+double MovementModule::getPositionByKey(){
+    double roll, pitch, yaw;
+    
     try{
         listener.lookupTransform(tf_src_, tf_dst_, ros::Time(0), transform);
         ROS_DEBUG("got transform!");
@@ -108,19 +108,46 @@ bool MovementModule::lookupInitialTransform() {
     catch (tf::TransformException ex){
         ROS_ERROR("error while calibrating: %s", ex.what());
         ros::Duration(1.0).sleep();
-        return false;
     }
-
-    initial_translation = transform.getOrigin();
-
-    return true;
+    
+    switch(tf_key_){
+        case tf_key::X_AXIS:
+            return transform.getOrigin().getX();
+        case tf_key::Y_AXIS:
+            return transform.getOrigin().getY();
+        case tf_key::Z_AXIS:
+            return transform.getOrigin().getZ();
+    }
+    
+    //only necessary for RPY
+    transform.getBasis().getRPY(roll, pitch, yaw);
+    
+    switch(tf_key_){
+        case tf_key::ROLL:
+            return roll;
+        case tf_key::PITCH:
+            return pitch;
+        case tf_key::YAW:
+            return yaw;
+    }
 }
 
 void MovementModule::parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level) {
-    ROS_INFO_STREAM("ModuleCallback " << nhname_);
+    ROS_INFO_STREAM("ModuleCallback " << name_);
 
     tf_src_ = config.tf_src.c_str();
     tf_dst_ = config.tf_dst.c_str();
+    
+    tf_key_ = tf_key(config.tf_key);
+    dir_key_ = dir_key(config.dir_key);
+ 
+    velocity_upper_ = config.velocity_upper;
+    
+    velocity_factor_ = config.velocity_factor;
+    deadzone_factor_ = config.deadzone_factor;
+    
+    activation_toggle_ = config.activation;
+    reflection_toggle_ = config.reflection;
 
     /*ROS_INFO(
             "\n#######ParameterCallback\nLINEAR_VELOCITY_UPPER:     %f \nANGULAR_VELOCITY_UPPER:    %f \nVELOCITY_FACTOR:           %f \nDEADLOCK_SIZE:             %f \nSOURCE_FRAME:              %s \nTARGET_FRAME:              %s\n#######",

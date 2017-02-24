@@ -11,7 +11,8 @@ enum class tf_key {
     Z_AXIS,
     ROLL,
     PITCH,
-    YAW
+    YAW,
+    TF_KEY_MAX = YAW
 };
 
 enum class cmd_key {
@@ -20,13 +21,15 @@ enum class cmd_key {
     LINEAR_Z,
     ANGULAR_X,
     ANGULAR_Y,
-    ANGUALR_Z
+    ANGUALR_Z,
+    CMD_KEY_MAX = ANGUALR_Z
 };
 
 enum class dir_key {
     POSITIVE,
     NEGATIVE,
-    BIDIRECTIONAL
+    BIDIRECTIONAL,
+    DIR_KEY_MAX = BIDIRECTIONAL
 };
 
 #endif //MEKA_GUIDING_ENUMKEYS_H
