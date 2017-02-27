@@ -17,9 +17,10 @@
 class MovementModule {
 
 public:
-    /**     constructor     **/
-    MovementModule(std::string name, std::string tf_src, std::string tf_dst, tf_key tf_key, dir_key dir, float velocity_factor);
-
+    /**     constructor     **/ 
+    MovementModule(std::string name);
+    MovementModule(std::string name, XmlRpc::XmlRpcValue params);
+    
     /**     functions  **/
     
 
@@ -50,7 +51,7 @@ private:
     /**     functions   **/
     double calcVelocity();
     double getPositionByKey();
-    void initializeDynamicReconfigure();
+    void overrideDefaultParameter(XmlRpc::XmlRpcValue params);
     void readConfig(meka_guiding::ModuleConfig &config);
     void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
 };
