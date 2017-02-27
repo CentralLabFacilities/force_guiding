@@ -12,8 +12,8 @@ MovementModule::MovementModule(std::string name, std::string tf_src, std::string
     this->velocity_factor_ = velocity_factor;
     
     initializeDynamicReconfigure();
-    
-    calibrate();
+
+    reference_position_ = getPositionByKey();
 }
 
 void MovementModule::initializeDynamicReconfigure(){
@@ -38,78 +38,65 @@ void MovementModule::initializeDynamicReconfigure(){
     dyn_reconfigure_server_ptr_.get()->updateConfig(config);
     dyn_reconf_lock.unlock();
     
-    //creating server
-    
+    //create server
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
 }
 
 //calculates new velocities to set depending on the deflections of the input joint
-void MovementModule::calcVelocity(){
-    /*
-    //deflection using the distance of the vectorelements
-    double x_dist = new_translation.getX() - initial_translation.getX();
-    double y_dist = new_translation.getY() - initial_translation.getY();
-
-    //for precise determination of the deadzone
-    double dist = initial_translation.distance(new_translation);
-
-    //calculation of x_vel
-    if((new_translation.getX() > (initial_translation.getX() * (1 + DEADLOCK_SIZE))) ||
-       (new_translation.getX() < (initial_translation.getX() * (1 - DEADLOCK_SIZE)))){
-
-        x_vel = x_dist * VELOCITY_FACTOR;
-    } else {
-        x_vel = 0.0;
-    }
-
-    //calculation of y_vel
-    if((new_translation.getY() > (initial_translation.getY() * (1 + DEADLOCK_SIZE))) ||
-       (new_translation.getY() < (initial_translation.getY() * (1 - DEADLOCK_SIZE)))){
-
-        y_vel = y_dist * VELOCITY_FACTOR;
-    } else {
-        y_vel = 0.0;
-    }
-
-    ROS_DEBUG_STREAM( "VelocityX (dist, vel):[" << x_dist << ", " << x_vel << "]");
-    ROS_DEBUG_STREAM( "VelocityY (dist, vel):[" << y_dist << ", " << y_vel << "]");
-    ROS_DEBUG_STREAM( "Translation{initial}: [" << initial_translation.getX() << ", " << initial_translation.getY() << ", " << initial_translation.getZ() << "]");
-    ROS_DEBUG_STREAM( "Translation{actual}:  [" << new_translation.getX() << ", " << new_translation.getY() << ", " << new_translation.getZ() << "]"); */
-    
+double MovementModule::calcVelocity(){
     double dist, velocity, actual_position;
     
     actual_position = getPositionByKey();
-    
-    switch(dir_key_){
-        case dir_key::POSITIVE:
-            /* calculate */
-        case dir_key::NEGATIVE:
-            /* calculate */
-        case dir_key::BIDIRECTIONAL:
-            /* calculate */
-            dist = 0;
+    dist = std::fabs(reference_position_ - actual_position);
+
+    //calculate velocity depending on dir key
+    if(dir_key_ == dir_key::POSITIVE || dir_key_ == dir_key::BIDIRECTIONAL){
+        if(reference_position_ < 0 && (actual_position > (reference_position_ * (1 - deadzone_factor_)))){
+            velocity = dist * velocity_factor_;
+        } else if(reference_position_ > 0 && (actual_position > (reference_position_ * (1 + deadzone_factor_)))){
+            velocity = dist * velocity_factor_;
+        } else if(reference_position_ == 0 && (actual_position > deadzone_factor_)) {
+            velocity = dist * velocity_factor_;
+        }
+    } else if (dir_key_ == dir_key::NEGATIVE || dir_key_ == dir_key::BIDIRECTIONAL){
+        if(reference_position_ < 0 && (actual_position < (reference_position_ * (1 + deadzone_factor_)))){
+            velocity = -(dist * velocity_factor_);
+        } else if(reference_position_ > 0 && (actual_position < (reference_position_ * (1 - deadzone_factor_)))){
+            velocity = -(dist * velocity_factor_);
+        } else if(reference_position_ == 0 && (actual_position < -(deadzone_factor_))) {
+            velocity = -(dist * velocity_factor_);
+        }
+    } else {
+        velocity = 0;
     }
+
+    //respect upper velocity limit TODO set to last value
+    if(std::fabs(velocity) > velocity_upper_){
+        velocity = 0;
+    }
+
+    ROS_DEBUG_STREAM( "Module" << name_ <<  "[" << reference_position_ << ", " << actual_position << ", " << velocity << "]");
+
+    return velocity;
     
 }
 
-//sets reference position
-void MovementModule::calibrate(){
-    reference_position_ = getPositionByKey();
-}
-
+//gets transform and returns value depending on tf key of the module
 double MovementModule::getPositionByKey(){
-    double roll, pitch, yaw;
-    
+
+    //get transform, on error return 0
     try{
         listener.lookupTransform(tf_src_, tf_dst_, ros::Time(0), transform);
         ROS_DEBUG("got transform!");
     }
     catch (tf::TransformException ex){
-        ROS_ERROR("error while calibrating: %s", ex.what());
+        ROS_ERROR("Module %s couldn't get transform: %s", name_.c_str(), ex.what());
         ros::Duration(1.0).sleep();
+        return 0;
     }
-    
+
+    //switch translation as it can be returned directly
     switch(tf_key_){
         case tf_key::X_AXIS:
             return transform.getOrigin().getX();
@@ -119,9 +106,11 @@ double MovementModule::getPositionByKey(){
             return transform.getOrigin().getZ();
     }
     
-    //only necessary for RPY
+    //get RPY as these values are not directly returnable
+    double roll, pitch, yaw;
     transform.getBasis().getRPY(roll, pitch, yaw);
-    
+
+    //switch rotation
     switch(tf_key_){
         case tf_key::ROLL:
             return roll;
@@ -132,26 +121,22 @@ double MovementModule::getPositionByKey(){
     }
 }
 
+//callback for dyn_reconfigure
 void MovementModule::parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level) {
-    ROS_INFO_STREAM("ModuleCallback " << name_);
+    ROS_INFO("ParameterCallback %s", name_.c_str());
+    readConfig(config);
+}
 
+//getting all values from the dyn_reconfigure config
+void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
     tf_src_ = config.tf_src.c_str();
     tf_dst_ = config.tf_dst.c_str();
-    
+
     tf_key_ = tf_key(config.tf_key);
     dir_key_ = dir_key(config.dir_key);
- 
+
     velocity_upper_ = config.velocity_upper;
-    
+
     velocity_factor_ = config.velocity_factor;
     deadzone_factor_ = config.deadzone_factor;
-    
-    activation_toggle_ = config.activation;
-    reflection_toggle_ = config.reflection;
-
-    /*ROS_INFO(
-            "\n#######ParameterCallback\nLINEAR_VELOCITY_UPPER:     %f \nANGULAR_VELOCITY_UPPER:    %f \nVELOCITY_FACTOR:           %f \nDEADLOCK_SIZE:             %f \nSOURCE_FRAME:              %s \nTARGET_FRAME:              %s\n#######",
-            LINEAR_VELOCITY_UPPER, ANGULAR_VELOCITY_UPPER, VELOCITY_FACTOR, DEADLOCK_SIZE, tf_src.c_str(),
-            tf_dst.c_str());
-*/
 }

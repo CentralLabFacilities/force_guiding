@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
 
     while(nh.ok()){
-	rate.sleep();
+	    rate.sleep();
         ros::spinOnce();
     }
     

@@ -31,20 +31,13 @@ private:
     tf_key tf_key_;
     dir_key dir_key_;
     
-    double velocity_upper_ = 5.0;
-    double velocity_factor_ = 1.0;
-    double deadzone_factor_ = 0.1;
-    
-    bool activation_toggle_ = true;
-    bool reflection_toggle_ = false;
+    double velocity_upper_;
+    double velocity_factor_;
+    double deadzone_factor_;
 
     boost::recursive_mutex dyn_reconfigure_mutex_;
     boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconfigure_server_ptr_;
     dynamic_reconfigure::Server<meka_guiding::ModuleConfig>::CallbackType f_;
-    
-    /**     constants   **/
-    const double VELOCITY_LOWER = 0.0;
-    const int MAX_CALIBRATION_TRIES = 5;  //--> error handling
 
     /**     variables   **/
     std::string name_;
@@ -55,10 +48,10 @@ private:
     double reference_position_;
     
     /**     functions   **/
-    void calibrate();
-    void calcVelocity();
+    double calcVelocity();
     double getPositionByKey();
     void initializeDynamicReconfigure();
+    void readConfig(meka_guiding::ModuleConfig &config);
     void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
 };
 
