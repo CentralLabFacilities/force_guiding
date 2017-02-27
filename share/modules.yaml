@@ -1,15 +1,7 @@
 ModuleList:
-- name: TestModule
-  cmd_key: 5
-  params:
-   tf_src: panplate
-   tf_dst: neck_plate
-   tf_key: 3
-   dir_key: 2
-   velocity_upper: 3.2
-   velocity_factor: .4
-   deadzone_factor: 0.7
-- name: TestNoParam
+- name: Test3
   cmd_key: 3
-- name: TestEmptyParam
-  cmd_key: 0
+- name: Test2
+  cmd_key: 5
+- name: HKIB
+  cmd_key: 1
