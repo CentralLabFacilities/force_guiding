@@ -81,10 +81,10 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 }
 
 //calculates new velocities to set depending on the deflections of the input joint
-double MovementModule::calcVelocity(){
+bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response){
     double dist, velocity, actual_position;
     
-    actual_position = getPositionByKey();
+    actual_position = getPositionByKey(request.stamp);
     dist = std::fabs(reference_position_ - actual_position);
 
     //calculate velocity depending on dir key
@@ -115,12 +115,14 @@ double MovementModule::calcVelocity(){
 
     ROS_DEBUG_STREAM( "Module" << name_ <<  "[" << reference_position_ << ", " << actual_position << ", " << velocity << "]");
 
-    return velocity;
+    response.vel = velocity;
+    return true;
     
 }
 
 //gets transform and returns value depending on tf key of the module
-double MovementModule::getPositionByKey(){
+double MovementModule::getPositionByKey(ros::Time time){
+    ROS_DEBUG("%s getting position at %d", name_.c_str(), time.sec);
 
     //get transform, on error return 0
     try{

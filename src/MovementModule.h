@@ -11,6 +11,7 @@
 #include "ros/ros.h"
 #include "tf/transform_listener.h"
 #include "dynamic_reconfigure/server.h"
+#include "meka_guiding/Velocity.h"
 #include "EnumKeys.h"
 #include <meka_guiding/ModuleConfig.h>
 
@@ -49,8 +50,8 @@ private:
     double reference_position_;
     
     /**     functions   **/
-    double calcVelocity();
-    double getPositionByKey();
+    bool calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response);
+    double getPositionByKey(ros::Time  = ros::Time::now());
     void overrideDefaultParameter(XmlRpc::XmlRpcValue params);
     void readConfig(meka_guiding::ModuleConfig &config);
     void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
