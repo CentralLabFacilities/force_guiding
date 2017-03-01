@@ -10,6 +10,7 @@
 
 #include "ros/ros.h"
 #include "tf/transform_listener.h"
+#include <XmlRpcException.h>
 #include "dynamic_reconfigure/server.h"
 #include "meka_guiding/Velocity.h"
 #include "EnumKeys.h"
@@ -18,12 +19,8 @@
 class MovementModule {
 
 public:
-    /**     constructor     **/ 
-    MovementModule(std::string name);
-    MovementModule(std::string name, XmlRpc::XmlRpcValue params);
-    
-    /**     functions  **/
-    
+    /**     constructor     **/
+    MovementModule(std::string name, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
 
 private:
     /**     dynamic     **/

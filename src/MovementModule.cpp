@@ -1,42 +1,37 @@
 #include "MovementModule.h"
 
-MovementModule::MovementModule(std::string name) {
-    name_ = std::string("~").append(name);
-    
-    //create dyn_reconf server with private node handle
-    ros::NodeHandle private_nh(name_);
-    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(dyn_reconfigure_mutex_, private_nh));
-    
-    //create server
-    f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
-    dyn_reconfigure_server_ptr_.get()->setCallback(f_);
-    
-    //get initial position
-    reference_position_ = getPositionByKey();
-}
-
 MovementModule::MovementModule(std::string name, XmlRpc::XmlRpcValue params) {
+    //new name for private
     name_ = std::string("~").append(name);
     
     //create dyn_reconf server with private node handle
     ros::NodeHandle private_nh(name_);
     dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(dyn_reconfigure_mutex_, private_nh));
-    
-    if(params.size() != 0 ){
-        ROS_INFO("Module %s is overriding defaults", name.c_str());
-        overrideDefaultParameter(params);
-    } else {
-        ROS_WARN("Module %s has empty parameter list", name.c_str());
+
+    try {
+        if(params.size() != 0 ){
+            ROS_INFO("Module %s is overriding defaults", name.c_str());
+            overrideDefaultParameter(params);
+        } else {
+            ROS_WARN("Module %s is using defaults", name.c_str());
+        }
     }
-    
+    catch (XmlRpc::XmlRpcException exception) {
+        ROS_WARN("Module %s is using defaults, XmlRpc says: %s", name.c_str(), exception.getMessage().c_str());
+    }
+
+
     //create server
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
     
     //get initial position
     reference_position_ = getPositionByKey();
-}
 
+    ros::ServiceServer service = private_nh.advertiseService(name, &MovementModule::calcVelocity, this);
+    ROS_INFO("%s ready to calculate velocity", name.c_str());
+    ros::spin();
+}
 
 void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     /* https://github.com/felix-kolbe/scitos_metralabs/blob/master/metralabs_ros/src/ScitosBase.cpp#L245 */
@@ -108,7 +103,7 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
         velocity = 0;
     }
 
-    //respect upper velocity limit TODO set to last value
+    //respect upper velocity limit TODO set to last value to know when priority mode is engaged
     if(std::fabs(velocity) > velocity_upper_){
         velocity = 0;
     }
@@ -122,7 +117,7 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
 
 //gets transform and returns value depending on tf key of the module
 double MovementModule::getPositionByKey(ros::Time time){
-    ROS_DEBUG("%s getting position at %d", name_.c_str(), time.sec);
+    ROS_DEBUG("%s trying to get position at %d seconds", name_.c_str(), time.sec);
 
     //get transform, on error return 0
     try{
