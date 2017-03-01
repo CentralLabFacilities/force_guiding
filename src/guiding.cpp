@@ -13,6 +13,8 @@ boost::recursive_mutex dyn_reconfigure_mutex_;
 boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ControllerConfig> > dyn_reconfigure_server_ptr_;
 dynamic_reconfigure::Server<meka_guiding::ControllerConfig>::CallbackType f_;
 
+bool startup = true;
+
 /**     function prototypes     **/
 void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level);
 bool configure(ros::NodeHandle nh);
@@ -62,7 +64,12 @@ int main(int argc, char **argv)
 
 void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
     ROS_INFO_STREAM("ControllerReconfiguration");
-    
+
+    if(startup){
+        startup = false;
+        return;
+    }
+
     bool removed = false;
 
     for (int i = 0; i < active_modules.size(); i++) {
@@ -121,7 +128,7 @@ void setConfig(){
         ROS_WARN("%s", active_modules[i].c_str());
     }
     
-    ROS_INFO("module list: %s", module_list.c_str());
+    ROS_DEBUG("module list: %s", module_list.c_str());
     
     config.module_list = module_list;
     
@@ -174,6 +181,8 @@ bool configure(ros::NodeHandle nh = ros::NodeHandle()){
         /* TODO add cmdkey to list && check cmd key */
         boost::shared_ptr<MovementModule> mm;
 
+
+
         if (config[i].hasMember("params")) {
             mm.reset(new MovementModule(std::string(config[i]["name"]), config[i]["params"]));
         } else {
@@ -186,7 +195,7 @@ bool configure(ros::NodeHandle nh = ros::NodeHandle()){
 
         active_modules.push_back(std::string(config[i]["name"]));
 
-        ROS_INFO("Created module %s", std::string(config[i]["name"]).c_str());
+        ROS_DEBUG("Created module %s", std::string(config[i]["name"]).c_str());
 
     } 
     
