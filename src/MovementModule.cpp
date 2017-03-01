@@ -1,12 +1,15 @@
 #include "MovementModule.h"
 
 MovementModule::MovementModule(std::string name, XmlRpc::XmlRpcValue params) {
+    //save name
+    name_ = name;
+
     //new name for private
-    name_ = std::string("~").append(name);
+    std::string nhname_ = std::string("~").append(name);
     
     //create dyn_reconf server with private node handle
-    ros::NodeHandle private_nh(name_);
-    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(dyn_reconfigure_mutex_, private_nh));
+    nh_ptr_.reset(new ros::NodeHandle(nhname_));
+    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(dyn_reconfigure_mutex_, *(nh_ptr_.get())));
 
     try {
         if(params.size() != 0 ){
@@ -28,9 +31,13 @@ MovementModule::MovementModule(std::string name, XmlRpc::XmlRpcValue params) {
     //get initial position
     reference_position_ = getPositionByKey();
 
-    ros::ServiceServer service = private_nh.advertiseService(name, &MovementModule::calcVelocity, this);
-    ROS_INFO("%s ready to calculate velocity", name.c_str());
-    ros::spin();
+
+}
+
+void MovementModule::startAdvertising() {
+    ros::ServiceServer service = nh_ptr_.get()->advertiseService(name_, &MovementModule::calcVelocity, this);
+    ROS_INFO("%s ready to calculate velocity", name_.c_str());
+    spinner_.spin();
 }
 
 void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
