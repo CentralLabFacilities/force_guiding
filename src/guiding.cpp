@@ -49,13 +49,13 @@ int main(int argc, char **argv)
     
     //set frequency to 10Hz
     ros::Rate rate(10.0);
-
     
     //initialze publisher
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
 
+    ROS_INFO("... and we're spinning in the main thread!");
     while(nh.ok()){
-	rate.sleep();
+	    rate.sleep();
         ros::spinOnce();
     }
     
@@ -125,7 +125,6 @@ void setConfig(){
     
     for(int i = 0; i < active_modules.size(); i++){
         module_list.append(active_modules[i]).append(" ");
-        ROS_WARN("%s", active_modules[i].c_str());
     }
     
     ROS_DEBUG("module list: %s", module_list.c_str());
@@ -181,13 +180,13 @@ bool configure(ros::NodeHandle nh = ros::NodeHandle()){
         /* TODO add cmdkey to list && check cmd key */
         boost::shared_ptr<MovementModule> mm;
 
-
-
         if (config[i].hasMember("params")) {
             mm.reset(new MovementModule(std::string(config[i]["name"]), config[i]["params"]));
         } else {
             mm.reset(new MovementModule(std::string(config[i]["name"])));
         }
+
+        boost::thread* thr = new boost::thread(boost::bind(&MovementModule::startAdvertising, mm.get()));
 
         mv_mutex.lock();
         mv.push_back(mm);
