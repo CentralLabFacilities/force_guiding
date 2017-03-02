@@ -1,3 +1,4 @@
+#include <thread>
 #include "ros/ros.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "geometry_msgs/Twist.h"
@@ -24,6 +25,7 @@ void setConfig();
 std::vector<std::string> split(std::string str, char delimiter);
 bool is_int(const std::string& s);
 bool addModule(std::string name, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
+void generateAndPublish();
 
 //takes care of all the node specific stuff
 
@@ -55,18 +57,34 @@ int main(int argc, char **argv) {
 
     //initialze publisher
     ros::Publisher pub = nh.advertise<geometry_msgs::Twist>(topic_pub, 1);
+    
+    ROS_INFO("creating message generator thread ... ");
 
+    std::thread t(generateAndPublish);
+    
     ROS_INFO("... and we're spinning in the main thread!");
 
     spinner.spin();
     return 0;
 }
 
-void generateAndPublish(){
-    ros::Time now = ros::Time::now();
-    
-    for(auto client : client_list){
+void generateAndPublish() {
+    while (ros::NodeHandle("~").ok()) {
+        ros::Time sync_stamp = ros::Time::now();
         
+        for (auto client : client_list) {
+            meka_guiding::Velocity srv;
+            srv.request.stamp = sync_stamp;
+            
+            if (client.call(srv)) {
+                ROS_DEBUG("Controller: %s calculated %f", client.getService().c_str(), srv.response.vel);
+            } else {
+                ROS_ERROR_STREAM("Controller: unable to communicate with " << client.getService());
+            }
+        }
+        
+        double dt = ros::Time::now().toSec() - sync_stamp.toSec();
+        ROS_DEBUG("controller: reading at %.2f hZ", 1/dt);
     }
 }
 
@@ -99,8 +117,6 @@ void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
         return;
     }*/
 
-    /* TODO add cmdkey to list && check cmd key */
-    /* TODO checks dubs */
     std::vector<std::string> new_module = split(config.add_module, ' ');
     if (static_cast<int> (new_module.size()) == 2 && is_int(new_module[1])) {
         addModule(new_module[0]);
@@ -224,17 +240,15 @@ bool addModule(std::string name, XmlRpc::XmlRpcValue params) {
     mv_mutex.lock();
     mv.push_back(mm);
     mv_mutex.unlock();
+    
+    ROS_INFO("Created module %s", name.c_str());
 
     std::string service_name(name);
     service_name.append("/calculateVelocity");
 
     client_list.push_back(ros::NodeHandle("~").serviceClient<meka_guiding::Velocity>(service_name));
-
-    //meka_guiding::Velocity srv;
-    //client_list[3].call(srv);
-    ROS_DEBUG_STREAM("connected to: " << client_list[client_list.size() - 1].getService());
     active_modules.push_back(name);
-
-    ROS_INFO("Created module %s", name.c_str());
+    ROS_DEBUG_STREAM("connected to: " << client_list[client_list.size() - 1].getService());
+    
     return true;
 }
