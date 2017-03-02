@@ -23,7 +23,6 @@ public:
     MovementModule(std::string name, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
 
     /**     functions   **/
-    void startAdvertising();
 private:
     /**     dynamic     **/
     std::string tf_src_;
@@ -40,8 +39,7 @@ private:
     boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconfigure_server_ptr_;
     dynamic_reconfigure::Server<meka_guiding::ModuleConfig>::CallbackType f_;
 
-    boost::shared_ptr<ros::NodeHandle> nh_ptr_;
-    ros::MultiThreadedSpinner spinner_;
+    boost::shared_ptr<ros::ServiceServer> service_ptr_;
 
     /**     variables   **/
     std::string name_;
