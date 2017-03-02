@@ -1,8 +1,7 @@
 <launch>
-    <param name="topic_pub" value="/cmd_vel" />
-    <param name="topic_stiff" value="/meka_roscontrol/stiffness_controller/command" />
-    <param name="jointcount" value="29" />
-    <param name="stiffness" value="0.1" />
 
+    <rosparam command="load" file="$(find meka_guiding)/share/modules.yaml" />
+
+    <param name="topic_pub" value="/cmd_vel" />
     <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
 </launch>
