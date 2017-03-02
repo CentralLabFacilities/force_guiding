@@ -44,10 +44,11 @@ private:
     /**     variables   **/
     std::string name_;
     
-    tf::TransformListener listener;
-    tf::StampedTransform transform;
+    tf::TransformListener listener_;
+    tf::StampedTransform transform_;
 
     double reference_position_;
+    double last_vel_ = 0;
     
     /**     functions   **/
     bool calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response);

@@ -23,7 +23,6 @@ MovementModule::MovementModule(std::string name, XmlRpc::XmlRpcValue params) {
         ROS_WARN("Module %s is using defaults, XmlRpc says: %s", name.c_str(), exception.getMessage().c_str());
     }
 
-
     //create server
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
@@ -80,6 +79,7 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response){
     double dist, velocity, actual_position;
     
+    //calculate distance depending ont he actual position
     actual_position = getPositionByKey(request.stamp);
     dist = std::fabs(reference_position_ - actual_position);
 
@@ -104,14 +104,29 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
         velocity = 0;
     }
 
-    //respect upper velocity limit TODO set to last value to know when priority mode is engaged
     if(std::fabs(velocity) > velocity_upper_){
         velocity = 0;
     }
 
     ROS_DEBUG_STREAM( "Module" << name_ <<  "[" << reference_position_ << ", " << actual_position << ", " << velocity << "]");
-
+    
+    response.name = name_;
     response.vel = velocity;
+    
+    if(last_vel_ == 0 && velocity != 0){
+        response.priority_flag = true;
+    } else {
+        response.priority_flag = false;
+    }
+    
+    if(last_vel_ != 0 && velocity == 0){
+        response.finished_movement = true;
+    } else {
+        response.finished_movement = false;
+    }
+    
+    last_vel_ = velocity;
+    
     return true;
     
 }
@@ -122,7 +137,7 @@ double MovementModule::getPositionByKey(ros::Time time){
 
     //get transform, on error return 0
     try{
-        listener.lookupTransform(tf_src_, tf_dst_, ros::Time(0), transform);
+        listener_.lookupTransform(tf_src_, tf_dst_, ros::Time(0), transform_);
         ROS_DEBUG("got transform!");
     }
     catch (tf::TransformException ex){
@@ -134,16 +149,16 @@ double MovementModule::getPositionByKey(ros::Time time){
     //switch translation as it can be returned directly
     switch(tf_key_){
         case tf_key::X_AXIS:
-            return transform.getOrigin().getX();
+            return transform_.getOrigin().getX();
         case tf_key::Y_AXIS:
-            return transform.getOrigin().getY();
+            return transform_.getOrigin().getY();
         case tf_key::Z_AXIS:
-            return transform.getOrigin().getZ();
+            return transform_.getOrigin().getZ();
     }
     
     //get RPY as these values are not directly returnable
     double roll, pitch, yaw;
-    transform.getBasis().getRPY(roll, pitch, yaw);
+    transform_.getBasis().getRPY(roll, pitch, yaw);
 
     //switch rotation
     switch(tf_key_){
