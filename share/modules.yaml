@@ -1,7 +1,4 @@
 ModuleList:
-- name: Test3
+- name: test
   cmd_key: 3
-- name: Test2
-  cmd_key: 5
-- name: HKIB
-  cmd_key: 1
+

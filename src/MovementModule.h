@@ -20,7 +20,7 @@ class MovementModule {
 
 public:
     /**     constructor     **/
-    MovementModule(std::string name, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
+    MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
 
     /**     functions   **/
 private:
@@ -30,6 +30,7 @@ private:
     
     tf_key tf_key_;
     dir_key dir_key_;
+    cmd_key cmd_key_;
     
     double velocity_upper_;
     double velocity_factor_;

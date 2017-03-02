@@ -1,8 +1,10 @@
 #include "MovementModule.h"
 
-MovementModule::MovementModule(std::string name, XmlRpc::XmlRpcValue params) {
+MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) {
     //save name
     name_ = name;
+
+    cmd_key_ = key;
 
     //new name for private
     std::string nhname_ = std::string("~").append(name);
@@ -112,6 +114,7 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
     
     response.name = name_;
     response.vel = velocity;
+    response.cmd_key = static_cast<int>(cmd_key_);
     
     if(last_vel_ == 0 && velocity != 0){
         response.priority_flag = true;

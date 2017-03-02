@@ -5,13 +5,22 @@
 #include "MovementModule.h"
 #include <meka_guiding/ControllerConfig.h>
 
-const std::map<std::string, cmd_key> cmd_map = {
+const std::map<std::string, cmd_key> cmd_string_map = {
         {"LINEAR_X", cmd_key::LINEAR_X},
         {"LINEAR_Y", cmd_key::LINEAR_Y},
         {"LINEAR_Z", cmd_key::LINEAR_Z},
         {"ANGULAR_X", cmd_key::ANGULAR_X},
         {"ANGULAR_Y", cmd_key::ANGULAR_Y},
         {"ANGULAR_Z", cmd_key::ANGULAR_Z}
+};
+
+std::map<cmd_key, std::string> cmd_map = {
+        {cmd_key::LINEAR_X, ""},
+        {cmd_key::LINEAR_Y, ""},
+        {cmd_key::LINEAR_Z, ""},
+        {cmd_key::ANGULAR_X, ""},
+        {cmd_key::ANGULAR_Y, ""},
+        {cmd_key::ANGULAR_Z, ""}
 };
 
 boost::mutex mv_mutex;
@@ -33,8 +42,9 @@ bool configure(ros::NodeHandle nh);
 void setConfig();
 std::vector<std::string> split(std::string str, char delimiter);
 bool is_int(const std::string& s);
-bool addModule(std::string name, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
-void generateAndPublish();
+bool addModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
+void generateAndPublish(ros::Publisher pub);
+void setVelocityByKey(geometry_msgs::Twist& msg, double velocity, cmd_key key);
 
 //takes care of all the node specific stuff
 
@@ -69,7 +79,7 @@ int main(int argc, char **argv) {
     
     ROS_INFO("creating message generator thread ... ");
 
-    std::thread t(generateAndPublish);
+    std::thread t(generateAndPublish, pub);
     
     ROS_INFO("... and we're spinning in the main thread!");
 
@@ -77,23 +87,63 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void generateAndPublish() {
+void generateAndPublish(ros::Publisher pub) {
     while (ros::NodeHandle("~").ok()) {
         ros::Time sync_stamp = ros::Time::now();
+        geometry_msgs::Twist twist;
         
         for (auto client : client_list) {
             meka_guiding::Velocity srv;
             srv.request.stamp = sync_stamp;
             
             if (client.call(srv)) {
-                ROS_DEBUG("Controller: %s calculated %f", client.getService().c_str(), srv.response.vel);
+
+                if(srv.response.finished_movement){
+                    cmd_map[cmd_key(srv.response.cmd_key)] = "";
+                    continue;
+                }
+
+                if(srv.response.priority_flag){
+                    cmd_map[cmd_key(srv.response.cmd_key)] = srv.response.name;
+                    setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                } else if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == ""){
+                    setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                } else {
+                    continue;
+                }
+
             } else {
                 ROS_ERROR_STREAM("Controller: unable to communicate with " << client.getService());
             }
         }
+
+        pub.publish(twist);
         
         double dt = ros::Time::now().toSec() - sync_stamp.toSec();
         ROS_DEBUG("controller: reading at %.2f hZ", 1/dt);
+    }
+}
+
+void setVelocityByKey(geometry_msgs::Twist& msg, double velocity, cmd_key key){
+    switch (key){
+        case cmd_key::LINEAR_X:
+            msg.linear.x = velocity;
+            break;
+        case cmd_key::LINEAR_Y:
+            msg.linear.y = velocity;
+            break;
+        case cmd_key::LINEAR_Z:
+            msg.linear.z = velocity;
+            break;
+        case cmd_key::ANGULAR_X:
+            msg.angular.x = velocity;
+            break;
+        case cmd_key::ANGULAR_Y:
+            msg.angular.y = velocity;
+            break;
+        case cmd_key::ANGULAR_Z:
+            msg.angular.z = velocity;
+            break;
     }
 }
 
@@ -128,7 +178,7 @@ void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
 
     std::vector<std::string> new_module = split(config.add_module, ' ');
     if (static_cast<int> (new_module.size()) == 2 && is_int(new_module[1])) {
-        addModule(new_module[0]);
+        addModule(new_module[0], cmd_key(stoi(new_module[1])));
     } else {
         ROS_ERROR("Controller: wrong arguments in add_module");
     }
@@ -199,11 +249,13 @@ bool configure(ros::NodeHandle nh = ros::NodeHandle()) {
         if (!valid)
             break;
 
+        int key = int(config[i]["cmd_key"]);
 
         if (config[i].hasMember("params")) {
-            valid = addModule(std::string(config[i]["name"]), config[i]["params"]);
+
+            valid = addModule(std::string(config[i]["name"]), cmd_key(key), config[i]["params"]);
         } else {
-            valid = addModule(std::string(config[i]["name"]));
+            valid = addModule(std::string(config[i]["name"]), cmd_key(key));
         }
 
         if (!valid)
@@ -233,7 +285,7 @@ bool is_int(const std::string& s) {
                 return !std::isdigit(c); }) == s.end();
 }
 
-bool addModule(std::string name, XmlRpc::XmlRpcValue params) {
+bool addModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) {
 
     //check for dubs
     for (int j = 0; j < active_modules.size(); j++) {
@@ -242,9 +294,8 @@ bool addModule(std::string name, XmlRpc::XmlRpcValue params) {
             return false;
         }
     }
-    
-    /* TODO add cmdkey to list && check cmd key */
-    boost::shared_ptr<MovementModule> mm(new MovementModule(name, params));
+
+    boost::shared_ptr<MovementModule> mm(new MovementModule(name, key, params));
 
     mv_mutex.lock();
     mv.push_back(mm);

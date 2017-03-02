@@ -4,3 +4,4 @@ string name
 bool priority_flag
 bool finished_movement
 float64 vel
+int8 cmd_key
