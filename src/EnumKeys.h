@@ -21,8 +21,8 @@ enum class cmd_key {
     LINEAR_Z,
     ANGULAR_X,
     ANGULAR_Y,
-    ANGUALR_Z,
-    CMD_KEY_MAX = ANGUALR_Z
+    ANGULAR_Z,
+    CMD_KEY_MAX = ANGULAR_Z
 };
 
 enum class dir_key {

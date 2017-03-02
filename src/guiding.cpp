@@ -5,6 +5,15 @@
 #include "MovementModule.h"
 #include <meka_guiding/ControllerConfig.h>
 
+const std::map<std::string, cmd_key> cmd_map = {
+        {"LINEAR_X", cmd_key::LINEAR_X},
+        {"LINEAR_Y", cmd_key::LINEAR_Y},
+        {"LINEAR_Z", cmd_key::LINEAR_Z},
+        {"ANGULAR_X", cmd_key::ANGULAR_X},
+        {"ANGULAR_Y", cmd_key::ANGULAR_Y},
+        {"ANGULAR_Z", cmd_key::ANGULAR_Z}
+};
+
 boost::mutex mv_mutex;
 std::vector<boost::shared_ptr<MovementModule> > mv;
 std::vector<std::string> active_modules;
