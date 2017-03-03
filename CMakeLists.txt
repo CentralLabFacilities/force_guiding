@@ -68,7 +68,7 @@ include_directories(
 )
 
 ## Declare a C++ executable
-add_executable(meka_guiding src/guiding.cpp src/MovementModule.cpp)
+add_executable(meka_guiding src/guiding.cpp src/MovementController.cpp src/MovementModule.cpp)
 add_executable(stiffness_publisher src/stiffness_publisher.cpp)
 
 ## Add cmake target dependencies of the executable
