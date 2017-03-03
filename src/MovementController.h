@@ -25,6 +25,7 @@ private:
     boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ControllerConfig> > dyn_reconfigure_server_ptr_;
     dynamic_reconfigure::Server<meka_guiding::ControllerConfig>::CallbackType f_;
 
+    bool priority_;
     bool startup = true;
 
     /**     variables   **/
@@ -36,7 +37,7 @@ private:
             {cmd_key::ANGULAR_Y, ""},
             {cmd_key::ANGULAR_Z, ""}
     };
-
+    
     std::string topic_pub;
     boost::shared_ptr<ros::Publisher> pub_ptr_;
 

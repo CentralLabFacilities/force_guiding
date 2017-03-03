@@ -17,8 +17,6 @@ MovementController::MovementController() {
     //setup dynamic_reconfigure
     dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ControllerConfig>(dyn_reconfigure_mutex_));
 
-    setConfig();
-
     f_ = boost::bind(&MovementController::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
 
@@ -128,32 +126,44 @@ bool MovementController::addModule(std::string name, cmd_key key, XmlRpc::XmlRpc
 
     return true;
 }
-
-
 void MovementController::generateAndPublish() {
+    ros::Rate rate(100);
+    ros::Time sync_stamp;
+    geometry_msgs::Twist twist;
+    
     while (ros::NodeHandle("~").ok()) {
-        ros::Time sync_stamp = ros::Time::now();
-        geometry_msgs::Twist twist;
-
+        sync_stamp = ros::Time::now();
+        twist = geometry_msgs::Twist();
+        
+        /** maybe call async clients in one for loop and collect in another one **/
+        
         for (auto client : client_list) {
             meka_guiding::Velocity srv;
             srv.request.stamp = sync_stamp;
 
             if (client.call(srv)) {
-
-                if(srv.response.finished_movement){
-                    cmd_map[cmd_key(srv.response.cmd_key)] = "";
-                    continue;
-                }
-
-                if(srv.response.priority_flag){
-                    cmd_map[cmd_key(srv.response.cmd_key)] = srv.response.name;
-                    setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
-                } else if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == ""){
-                    setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                if (srv.response.finished_movement) {
+                        cmd_map[cmd_key(srv.response.cmd_key)] = "";
+                        continue;
+                    }
+               
+                if (priority_) {
+                    if (srv.response.priority_flag) {
+                        cmd_map[cmd_key(srv.response.cmd_key)] = srv.response.name;
+                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                    } else if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == "") {
+                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                    } else {
+                        continue;
+                    }
                 } else {
-                    continue;
+                    if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == "") {
+                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                    } else {
+                        continue;
+                    }
                 }
+
 
             } else {
                 ROS_ERROR_STREAM("Controller: unable to communicate with " << client.getService());
@@ -162,8 +172,11 @@ void MovementController::generateAndPublish() {
 
         pub_ptr_.get()->publish(twist);
 
-        double dt = ros::Time::now().toSec() - sync_stamp.toSec();
-        ROS_DEBUG("controller: reading at %.2f hZ", 1/dt);
+        //obsolete due to sleeping
+        //double dt = ros::Time::now().toSec() - sync_stamp.toSec();
+        //ROS_DEBUG("controller: reading at took %.2f hZ", 1/dt);
+        
+        rate.sleep();
     }
 }
 
@@ -194,11 +207,14 @@ void MovementController::setVelocityByKey(geometry_msgs::Twist& msg, double velo
 
 void MovementController::parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
     ROS_INFO_STREAM("ControllerReconfiguration");
-
+    
     if (startup) {
         startup = false;
         return;
     }
+    
+    //set priority or fcfs mode
+    priority_ = config.priority_toggle;
 
     /*  broken bc it kills dynamic reconf
 
@@ -230,6 +246,7 @@ void MovementController::parameterCallback(meka_guiding::ControllerConfig &confi
 }
 
 
+//maybe not needed as this was required for killing modules which kills reconfigure
 void MovementController::setConfig() {
     //make sure all values are set
     meka_guiding::ControllerConfig config;
@@ -243,7 +260,7 @@ void MovementController::setConfig() {
 
     ROS_DEBUG("module list: %s", module_list.c_str());
 
-    config.module_list = module_list;
+    //config.module_list = module_list; 
 
     boost::recursive_mutex::scoped_lock dyn_reconf_lock(dyn_reconfigure_mutex_);
     dyn_reconfigure_server_ptr_.get()->updateConfig(config);
