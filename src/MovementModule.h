@@ -35,6 +35,8 @@ private:
     double velocity_upper_;
     double velocity_factor_;
     double deadzone_factor_;
+    
+    bool enable_toggle_;
 
     boost::recursive_mutex dyn_reconfigure_mutex_;
     boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconfigure_server_ptr_;

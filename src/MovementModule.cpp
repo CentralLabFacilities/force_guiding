@@ -80,6 +80,23 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 //calculates new velocities to set depending on the deflections of the input joint
 bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response){
     double dist, velocity, actual_position;
+
+    if (!enable_toggle_) {
+        response.name = name_;
+        response.vel = 0;
+        response.cmd_key = static_cast<int> (cmd_key_);
+        response.priority_flag = 0;
+
+        if (last_vel_ != 0 && velocity == 0) {
+            response.finished_movement = true;
+        } else {
+            response.finished_movement = false;
+        }
+        last_vel_ = 0;
+
+        return true;
+
+    }
     
     //calculate distance depending ont he actual position
     actual_position = getPositionByKey(request.stamp);
@@ -191,4 +208,6 @@ void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
     velocity_upper_ = config.velocity_upper;
     velocity_factor_ = config.velocity_factor;
     deadzone_factor_ = config.deadzone_factor;
+    
+    enable_toggle_ = config.enable_toggle;
 } 
