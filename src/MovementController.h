@@ -49,12 +49,12 @@ private:
 
     /**     constants   **/
     const std::map<std::string, cmd_key> cmd_string_map = {
-            {"LINEAR_X", cmd_key::LINEAR_X},
-            {"LINEAR_Y", cmd_key::LINEAR_Y},
-            {"LINEAR_Z", cmd_key::LINEAR_Z},
-            {"ANGULAR_X", cmd_key::ANGULAR_X},
-            {"ANGULAR_Y", cmd_key::ANGULAR_Y},
-            {"ANGULAR_Z", cmd_key::ANGULAR_Z}
+        {"LINEAR_X", cmd_key::LINEAR_X},
+        {"LINEAR_Y", cmd_key::LINEAR_Y},
+        {"LINEAR_Z", cmd_key::LINEAR_Z},
+        {"ANGULAR_X", cmd_key::ANGULAR_X},
+        {"ANGULAR_Y", cmd_key::ANGULAR_Y},
+        {"ANGULAR_Z", cmd_key::ANGULAR_Z}
     };
 
     /**     functions    **/
@@ -66,6 +66,7 @@ private:
     bool addModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
     void generateAndPublish();
     void setVelocityByKey(geometry_msgs::Twist& msg, double velocity, cmd_key key);
+    
     bool matchCmdKey(cmd_key& key, std::string name, std::string key_string);
     bool matchCmdKey(cmd_key& key, std::string name, int key_int);
 

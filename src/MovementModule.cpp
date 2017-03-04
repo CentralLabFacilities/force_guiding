@@ -214,3 +214,61 @@ void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
     
     enable_toggle_ = config.enable_toggle;
 } 
+
+bool MovementModule::matchTfKey(tf_key& key, std::string key_string) {
+    bool found = false;
+
+    for (auto& it_key : tf_string_map) {
+        if (it_key.first == key_string) {
+            ROS_DEBUG_STREAM("found key by name " << key_string);
+            key = it_key.second;
+            found = true;
+            break;
+        }
+    }
+    
+    if(!found)
+        ROS_ERROR("the given string %s does not map to a tf_key", key_string.c_str());
+
+    return found;
+}
+
+bool MovementModule::matchTfKey(tf_key& key, int key_int) {
+    if (key_int < 0 || key_int > static_cast<int> (tf_key::TF_KEY_MAX)) {
+        ROS_ERROR("%d didn't match a tf_key", key_int);
+        return false;
+    } else {
+        key = tf_key(key_int);
+    }
+    
+    return true;
+}
+
+bool MovementModule::matchDirKey(dir_key& key, std::string key_string) {
+    bool found = false;
+
+    for (auto& it_key : dir_string_map) {
+        if (it_key.first == key_string) {
+            ROS_DEBUG_STREAM("found key by name " << key_string);
+            key = it_key.second;
+            found = true;
+            break;
+        }
+    }
+    
+    if(!found)
+        ROS_ERROR("the given string %s does not map to a dir_key", key_string.c_str());
+
+    return found;
+}
+
+bool MovementModule::matchDirKey(dir_key& key, int key_int) {
+    if (key_int < 0 || key_int > static_cast<int> (dir_key::DIR_KEY_MAX)) {
+        ROS_ERROR("%d didn't match a dir_key", key_int);
+        return false;
+    } else {
+        key = dir_key(key_int);
+    }
+    
+    return true;
+}
