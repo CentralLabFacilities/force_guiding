@@ -67,28 +67,40 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
         } else if (!config[i].hasMember("name") || config[i]["name"].getType() != XmlRpc::XmlRpcValue::TypeString) {
             ROS_ERROR("Could not add module %d because no valid name was given", i);
             valid = false;
-        } else if (!config[i].hasMember("cmd_key") || config[i]["cmd_key"].getType() != XmlRpc::XmlRpcValue::TypeInt) {
-            ROS_ERROR("Could not add because no valid cmd_key was given");
+        } else if (!config[i].hasMember("cmd_key")) {
+            ROS_ERROR("Could not add %s because no cmd_key was given", std::string(config[i]["name"]).c_str());
             valid = false;
         }
+        
+        std::string module_name = std::string(config[i]["name"]);
 
         for (int j = 0; j < active_modules.size(); j++) {
-            if (std::string(config[i]["name"]) == active_modules[j]) {
+            if (module_name == active_modules[j]) {
                 ROS_ERROR("Module names have to be unique! %s violates that.", active_modules[j].c_str());
                 valid = false;
             }
         }
 
+        cmd_key key;
+
+        if (config[i]["cmd_key"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
+            if(!matchCmdKey(key, module_name, int(config[i]["cmd_key"])))
+                valid = false;
+        } else if (config[i]["cmd_key"].getType() == XmlRpc::XmlRpcValue::TypeString) {
+            if(!matchCmdKey(key, module_name, std::string(config[i]["cmd_key"])))
+                valid = false;
+        } else {
+            ROS_ERROR("Could not add %s because cmd_key was not valid", module_name.c_str());
+            valid = false;
+        }
+
         if (!valid)
             break;
-
-        int key = int(config[i]["cmd_key"]);
-
+        
         if (config[i].hasMember("params")) {
-
-            valid = addModule(std::string(config[i]["name"]), cmd_key(key), config[i]["params"]);
+            valid = addModule(module_name, key, config[i]["params"]);
         } else {
-            valid = addModule(std::string(config[i]["name"]), cmd_key(key));
+            valid = addModule(module_name, key);
         }
 
         if (!valid)
@@ -216,32 +228,27 @@ void MovementController::parameterCallback(meka_guiding::ControllerConfig &confi
     //set priority or fcfs mode
     priority_ = config.priority_toggle;
 
-    /*  broken bc it kills dynamic reconf
-
-    bool removed = false;
-
-    for (int i = 0; i < active_modules.size(); i++) {
-        if (config.module_list.find(active_modules[i]) != std::string::npos) {
-            ROS_INFO("Keeping module %s", active_modules[i].c_str());
-        } else {
-            ROS_INFO("Removing module %s", active_modules[i].c_str());
-            active_modules.erase(active_modules.begin() + i);
-            mv[i].reset();
-            mv.erase(mv.begin() + i);
-            removed = true;
-        }
-    }
-
-    if (removed) {
-        setConfig();
-        return;
-    }*/
-
     std::vector<std::string> new_module = split(config.add_module, ' ');
-    if (static_cast<int> (new_module.size()) == 2 && is_int(new_module[1])) {
-        addModule(new_module[0], cmd_key(stoi(new_module[1])));
-    } else {
+    
+    if(static_cast<int> (new_module.size()) != 2){
         ROS_ERROR("Controller: wrong arguments in add_module");
+        return;
+    }
+    
+    cmd_key key;
+    
+    if (is_int(new_module[1])) {
+        if(!matchCmdKey(key, new_module[0], atoi(new_module[1].c_str()))){
+            return;
+        } else {
+            addModule(new_module[0], key);
+        }
+    } else {
+        if(!matchCmdKey(key, new_module[0], new_module[1])){
+            return;
+        } else {
+            addModule(new_module[0], key);
+        }
     }
 }
 
@@ -286,4 +293,33 @@ bool MovementController::is_int(const std::string& s) {
     return !s.empty() && std::find_if(s.begin(),
                                       s.end(), [](char c) {
                 return !std::isdigit(c); }) == s.end();
+}
+
+bool MovementController::matchCmdKey(cmd_key& key, std::string name, std::string key_string) {
+    bool found = false;
+
+    for (auto& it_key : cmd_string_map) {
+        if (it_key.first == key_string) {
+            ROS_DEBUG_STREAM("found key by name " << key_string);
+            key = it_key.second;
+            found = true;
+            break;
+        }
+    }
+    
+    if(!found)
+        ROS_ERROR("Could not add %s because the given string %s does not map to a cmd_key", name.c_str(), key_string.c_str());
+
+    return found;
+}
+
+bool MovementController::matchCmdKey(cmd_key& key, std::string name, int key_int) {
+    if (key_int < 0 || key_int > static_cast<int> (cmd_key::CMD_KEY_MAX)) {
+        ROS_ERROR("Could not add %s because the %d didn't match a cmd_key", name.c_str(), key_int);
+        return false;
+    } else {
+        key = cmd_key(key_int);
+    }
+    
+    return true;
 }

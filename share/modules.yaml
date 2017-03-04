@@ -1,4 +1,4 @@
 ModuleList:
 - name: test
-  cmd_key: 3
+  cmd_key: LINEAR_X
 

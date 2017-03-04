@@ -3,6 +3,8 @@
 MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) : 
     name_(name), 
     cmd_key_(key) {
+    ROS_DEBUG("creating module for cmd_key %d", static_cast<int>(key));
+    
     //new name for private
     std::string nhname_ = std::string("~").append(name);
     

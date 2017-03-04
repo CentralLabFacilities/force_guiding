@@ -66,6 +66,8 @@ private:
     bool addModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
     void generateAndPublish();
     void setVelocityByKey(geometry_msgs::Twist& msg, double velocity, cmd_key key);
+    bool matchCmdKey(cmd_key& key, std::string name, std::string key_string);
+    bool matchCmdKey(cmd_key& key, std::string name, int key_int);
 
 };
 
