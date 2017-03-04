@@ -1,4 +1,8 @@
 ModuleList:
-- name: test
+- name: torso_linear
   cmd_key: LINEAR_X
-
+  params:
+    tf_dst: neck_pan
+    tf_key: 0
+    dir_key: 2
+    velocity_upper: 0.8
