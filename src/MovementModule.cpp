@@ -28,6 +28,10 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
     
+    //waitin, otherwise the first tf would always fail
+    ROS_INFO("waiting for transform for .5s");
+    listener_.waitForTransform(tf_src_, tf_dst_, ros::Time::now(), ros::Duration(0.5));
+    
     //get initial position
     reference_position_ = getPositionByKey();
 

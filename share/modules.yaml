@@ -1,8 +1,9 @@
 ModuleList:
 - name: torso_linear
-  cmd_key: LINEAR_X
+  cmd_key: LINEAR_Y
   params:
-    tf_dst: neck_pan
-    tf_key: 0
-    dir_key: 2
+    tf_dst: wrist_LEFT
+    tf_key: 1
+    dir_key: 0
     velocity_upper: 0.8
+
