@@ -54,13 +54,36 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         config.tf_dst = std::string(params["tf_dst"]);
         ROS_INFO("Setting tf_dst for module %s", name_.c_str());
     }
-    if (params.hasMember("tf_key") && params["tf_key"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
-        config.tf_key = static_cast<int> (params["tf_key"]);
+    if (params.hasMember("tf_key")) {
         ROS_INFO("Setting tf_key for module %s", name_.c_str());
+        
+        tf_key key;
+        
+        if(params["tf_key"].getType() == XmlRpc::XmlRpcValue::TypeInt){
+            if(matchTfKey(key, int(params["tf_key"])))
+                tf_key_ = key;
+        } else if(params["tf_key"].getType() == XmlRpc::XmlRpcValue::TypeString){
+            if(matchTfKey(key, std::string(params["tf_key"])))
+                tf_key_ = key;
+        } else {
+            ROS_ERROR("%s: tf_key has wrong type, ignoring", name_.c_str());
+        }
+        
     }
-    if (params.hasMember("dir_key") && params["dir_key"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
-        config.dir_key = static_cast<int> (params["dir_key"]);
+    if (params.hasMember("dir_key")) {
         ROS_INFO("Setting dir_key for module %s", name_.c_str());
+        
+        dir_key key;
+        
+        if(params["dir_key"].getType() == XmlRpc::XmlRpcValue::TypeInt){
+            if(matchDirKey(key, int(params["dir_key"])))
+                dir_key_ = key;
+        } else if(params["dir_key"].getType() == XmlRpc::XmlRpcValue::TypeString){
+            if(matchDirKey(key, std::string(params["dir_key"])))
+                dir_key_ = key;
+        } else {
+            ROS_ERROR("%s: dir_key has wrong type, ignoring", name_.c_str());
+        }
     }
     if (params.hasMember("deadzone_factor") && params["deadzone_factor"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
         config.deadzone_factor = static_cast<double> (params["deadzone_factor"]);
