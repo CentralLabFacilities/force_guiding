@@ -1,11 +1,8 @@
 #include "MovementModule.h"
 
-MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) {
-    //save name
-    name_ = name;
-
-    cmd_key_ = key;
-
+MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) : 
+    name_(name), 
+    cmd_key_(key) {
     //new name for private
     std::string nhname_ = std::string("~").append(name);
     
