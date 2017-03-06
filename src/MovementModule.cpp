@@ -128,8 +128,11 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
 
         return true;
 
+    }  else { //set default velocity
+        velocity = 0;
     }
-    
+
+
     //calculate distance depending ont he actual position
     actual_position = getPositionByKey(request.stamp);
     dist = std::fabs(reference_position_ - actual_position);
@@ -143,7 +146,9 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
         } else if(reference_position_ == 0 && (actual_position > deadzone_factor_)) {
             velocity = dist * velocity_factor_;
         }
-    } else if (dir_key_ == dir_key::NEGATIVE || dir_key_ == dir_key::BIDIRECTIONAL){
+    }
+
+    if (dir_key_ == dir_key::NEGATIVE || dir_key_ == dir_key::BIDIRECTIONAL){
         if(reference_position_ < 0 && (actual_position < (reference_position_ * (1 + deadzone_factor_)))){
             velocity = -(dist * velocity_factor_);
         } else if(reference_position_ > 0 && (actual_position < (reference_position_ * (1 - deadzone_factor_)))){
@@ -151,15 +156,13 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
         } else if(reference_position_ == 0 && (actual_position < -(deadzone_factor_))) {
             velocity = -(dist * velocity_factor_);
         }
-    } else {
-        velocity = 0;
     }
 
     if(std::fabs(velocity) > velocity_upper_){
         velocity = 0;
     }
 
-    ROS_DEBUG_STREAM( "Module" << name_ <<  "[" << reference_position_ << ", " << actual_position << ", " << velocity << "]");
+    ROS_DEBUG("Module(%d) %s: [%f, %f, %f]", static_cast<int>(dir_key_), name_.c_str(), reference_position_, actual_position, velocity);
     
     response.name = name_;
     response.vel = velocity;

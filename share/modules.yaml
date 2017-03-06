@@ -4,6 +4,6 @@ ModuleList:
   params:
     tf_dst: wrist_LEFT
     tf_key: X_AXIS
-    dir_key: NEGATIVE
+    dir_key: BIDIRECTIONAL
     velocity_upper: 0.8
 
