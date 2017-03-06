@@ -3,7 +3,34 @@ ModuleList:
   cmd_key: LINEAR_Y
   params:
     tf_dst: wrist_LEFT
+    tf_key: Y_AXIS
+    dir_key: POSITIVE
+
+- name: arm_right
+  cmd_key: LINEAR_Y
+  params:
+    tf_dst: wrist_RIGHT
+    tf_key: Y_AXIS
+    dir_key: NEGATIVE
+
+- name: torso_lin
+  cmd_key: LINEAR_X
+  params:
+    tf_src: panplate
+    tf_dst: neck_pan
     tf_key: X_AXIS
     dir_key: BIDIRECTIONAL
-    velocity_upper: 0.8
+    velocity_factor: 1.4
+    deadzone_factor: 1.8
+
+- name: torso_ang
+  cmd_key: ANGULAR_Z
+  params:
+    tf_src: panplate
+    tf_dst: neck_pan
+    tf_key: YAW
+    dir_key: BIDIRECTIONAL
+    velocity_upper: 1.0
+    velocity_factor: 0.6
+    deadzone_factor: 0.95
 
