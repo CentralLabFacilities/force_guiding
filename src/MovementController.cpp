@@ -155,6 +155,7 @@ void MovementController::generateAndPublish() {
 
             if (client.call(srv)) {
                 if (srv.response.finished_movement) {
+                        ROS_DEBUG_STREAM(srv.response.name << " finished movement");
                         cmd_map[cmd_key(srv.response.cmd_key)] = "";
                         continue;
                     }
@@ -170,6 +171,7 @@ void MovementController::generateAndPublish() {
                     }
                 } else {
                     if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == "") {
+                        cmd_map[cmd_key(srv.response.cmd_key)] = srv.response.name;
                         setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
                     } else {
                         continue;
