@@ -1,0 +1,9 @@
+<launch>
+    <node name="guiding_plot_linear" pkg="rqt_plot" type="rqt_plot"  
+	  args="/cmd_vel/linear/x 
+	        /cmd_vel/linear/y
+		/cmd_vel/angular/z
+		/smooth_cmd_vel/linear/x
+		/smooth_cmd_vel/linear/y
+		/smooth_cmd_vel/angular/z" />
+</launch>
