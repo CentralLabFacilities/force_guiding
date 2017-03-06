@@ -234,8 +234,19 @@ void MovementModule::parameterCallback(meka_guiding::ModuleConfig &config, uint3
 
 //getting all values from the dyn_reconfigure config
 void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
-    tf_src_ = config.tf_src.c_str();
-    tf_dst_ = config.tf_dst.c_str();
+
+    if(tf_src_ != config.tf_src){
+        ROS_INFO("%s setting new tf_src %s", name_.c_str(), config.tf_src.c_str());
+        tf_src_ = config.tf_src.c_str();
+        reference_position_ = getPositionByKey();
+    }
+
+    if(tf_dst_ != config.tf_dst){
+        ROS_INFO("%s setting new tf_dst %s", name_.c_str(), config.tf_dst.c_str());
+        tf_dst_ = config.tf_dst.c_str();
+        reference_position_ = getPositionByKey();
+    }
+
 
     tf_key_ = tf_key(config.tf_key);
     dir_key_ = dir_key(config.dir_key);
