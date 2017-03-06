@@ -3,7 +3,7 @@ ModuleList:
   cmd_key: LINEAR_Y
   params:
     tf_dst: wrist_LEFT
-    tf_key: Y_AXIS
-    dir_key: POSITIVE
+    tf_key: X_AXIS
+    dir_key: NEGATIVE
     velocity_upper: 0.8
 

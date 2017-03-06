@@ -48,14 +48,13 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 
     if (params.hasMember("tf_src") && params["tf_src"].getType() == XmlRpc::XmlRpcValue::TypeString) {
         config.tf_src = std::string(params["tf_src"]);
-        ROS_INFO("Setting tf_src for module %s", name_.c_str());
+        ROS_INFO("Setting tf_src %s for module %s", config.tf_src.c_str(), name_.c_str());
     }
     if (params.hasMember("tf_dst") && params["tf_dst"].getType() == XmlRpc::XmlRpcValue::TypeString) {
         config.tf_dst = std::string(params["tf_dst"]);
-        ROS_INFO("Setting tf_dst for module %s", name_.c_str());
+        ROS_INFO("Setting tf_dst %s for module %s", config.tf_dst.c_str(), name_.c_str());
     }
     if (params.hasMember("tf_key")) {
-        ROS_INFO("Setting tf_key for module %s", name_.c_str());
         
         tf_key key;
         
@@ -68,10 +67,13 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         } else {
             ROS_ERROR("%s: tf_key has wrong type, ignoring", name_.c_str());
         }
-        
+
+        config.tf_key = static_cast<int>(tf_key_);
+
+        ROS_INFO("Setting tf_key %d for module %s", config.tf_key, name_.c_str());
     }
     if (params.hasMember("dir_key")) {
-        ROS_INFO("Setting dir_key for module %s", name_.c_str());
+
         
         dir_key key;
         
@@ -84,18 +86,22 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         } else {
             ROS_ERROR("%s: dir_key has wrong type, ignoring", name_.c_str());
         }
+
+        config.dir_key = static_cast<int>(dir_key_);
+
+        ROS_INFO("Setting dir_key %d for module %s", config.dir_key, name_.c_str());
     }
     if (params.hasMember("deadzone_factor") && params["deadzone_factor"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
         config.deadzone_factor = static_cast<double> (params["deadzone_factor"]);
-        ROS_INFO("Setting deadzone_factor for module %s", name_.c_str());
+        ROS_INFO("Setting deadzone_factor %f for module %s", config.deadzone_factor, name_.c_str());
     }
     if (params.hasMember("velocity_factor") && params["velocity_factor"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
         config.velocity_factor = static_cast<double> (params["velocity_factor"]);
-        ROS_INFO("Setting velocity_factor for module %s", name_.c_str());
+        ROS_INFO("Setting velocity_factor %f for module %s", config.velocity_factor, name_.c_str());
     }
     if (params.hasMember("velocity_upper") && params["velocity_upper"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
         config.velocity_upper = static_cast<double> (params["velocity_upper"]);
-        ROS_INFO("Setting velocity_upper for module %s", name_.c_str());
+        ROS_INFO("Setting velocity_upper %f for module %s", config.velocity_upper, name_.c_str());
     }
 
     boost::recursive_mutex::scoped_lock dyn_reconf_lock(dyn_reconfigure_mutex_);
@@ -179,7 +185,7 @@ bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka
 
 //gets transform and returns value depending on tf key of the module
 double MovementModule::getPositionByKey(ros::Time time){
-    ROS_DEBUG("%s trying to get position at %d seconds", name_.c_str(), time.sec);
+    ROS_DEBUG("%s trying to get position by key %d at %d seconds", name_.c_str(), static_cast<int>(tf_key_), time.sec);
 
     //get transform, on error return 0
     try{
