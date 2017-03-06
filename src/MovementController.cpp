@@ -155,9 +155,16 @@ void MovementController::generateAndPublish() {
 
             if (client.call(srv)) {
                 if (srv.response.finished_movement) {
-                        ROS_DEBUG_STREAM(srv.response.name << " finished movement");
-                        cmd_map[cmd_key(srv.response.cmd_key)] = "";
-                        continue;
+                    ROS_INFO_STREAM(srv.response.name << " finished movement");
+
+                    for (auto& it : cmd_map) {
+                        if(it.second == srv.response.name){
+                            ROS_DEBUG("cmd key %d will be freed from %s", static_cast<int>(it.first), it.second.c_str());
+                            it.second = "";
+                        }
+                    }
+
+                    continue;
                     }
                
                 if (priority_) {

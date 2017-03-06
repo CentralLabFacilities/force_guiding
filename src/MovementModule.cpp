@@ -45,6 +45,8 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     meka_guiding::ModuleConfig config;
     dyn_reconfigure_server_ptr_.get()->getConfigDefault(config);
 
+    config.cmd_key = static_cast<int>(cmd_key_);
+
 
     if (params.hasMember("tf_src") && params["tf_src"].getType() == XmlRpc::XmlRpcValue::TypeString) {
         config.tf_src = std::string(params["tf_src"]);
@@ -252,6 +254,8 @@ void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
         tf_key_ = tf_key(config.tf_key);
         reference_position_ = getPositionByKey();
     }
+
+    cmd_key_ = cmd_key(config.cmd_key);
 
     dir_key_ = dir_key(config.dir_key);
 
