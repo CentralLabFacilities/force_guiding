@@ -247,8 +247,12 @@ void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
         reference_position_ = getPositionByKey();
     }
 
+    if(tf_key_ != tf_key(config.tf_key)){
+        ROS_INFO("%s setting new tf_key %d", name_.c_str(), config.tf_key);
+        tf_key_ = tf_key(config.tf_key);
+        reference_position_ = getPositionByKey();
+    }
 
-    tf_key_ = tf_key(config.tf_key);
     dir_key_ = dir_key(config.dir_key);
 
     velocity_upper_ = config.velocity_upper;
