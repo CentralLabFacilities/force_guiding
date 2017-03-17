@@ -25,14 +25,14 @@ public:
     /**     functions   **/
 private:
     /**     dynamic     **/
-    std::string tf_src_;
-    std::string tf_dst_;
+    std::string source_frame_;
+    std::string target_frame_;
     
     tf_key tf_key_;
     dir_key dir_key_;
     cmd_key cmd_key_;
     
-    double velocity_upper_;
+    double max_velocity_;
     double velocity_factor_;
     double deadzone_factor_;
     

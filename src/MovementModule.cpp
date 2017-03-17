@@ -30,7 +30,7 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
     
     //waitin, otherwise the first tf would always fail
     ROS_INFO("waiting for transform for .5s");
-    listener_.waitForTransform(tf_src_, tf_dst_, ros::Time::now(), ros::Duration(0.5));
+    listener_.waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(0.5));
     
     //get initial position
     reference_position_ = getPositionByKey();
@@ -45,16 +45,16 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     force_guiding::ModuleConfig config;
     dyn_reconfigure_server_ptr_.get()->getConfigDefault(config);
 
-    config.cmd_key = static_cast<int>(cmd_key_);
+    config.velocity_dof = static_cast<int>(cmd_key_);
 
 
-    if (params.hasMember("tf_src") && params["tf_src"].getType() == XmlRpc::XmlRpcValue::TypeString) {
-        config.tf_src = std::string(params["tf_src"]);
-        ROS_INFO("Setting tf_src %s for module %s", config.tf_src.c_str(), name_.c_str());
+    if (params.hasMember("source_frame") && params["source_frame"].getType() == XmlRpc::XmlRpcValue::TypeString) {
+        config.source_frame = std::string(params["source_frame"]);
+        ROS_INFO("Setting source_frame %s for module %s", config.source_frame.c_str(), name_.c_str());
     }
-    if (params.hasMember("tf_dst") && params["tf_dst"].getType() == XmlRpc::XmlRpcValue::TypeString) {
-        config.tf_dst = std::string(params["tf_dst"]);
-        ROS_INFO("Setting tf_dst %s for module %s", config.tf_dst.c_str(), name_.c_str());
+    if (params.hasMember("target_frame") && params["target_frame"].getType() == XmlRpc::XmlRpcValue::TypeString) {
+        config.target_frame = std::string(params["target_frame"]);
+        ROS_INFO("Setting target_frame %s for module %s", config.target_frame.c_str(), name_.c_str());
     }
     if (params.hasMember("tf_key")) {
         
@@ -70,9 +70,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
             ROS_ERROR("%s: tf_key has wrong type, ignoring", name_.c_str());
         }
 
-        config.tf_key = static_cast<int>(tf_key_);
+        config.tf_dof = static_cast<int>(tf_key_);
 
-        ROS_INFO("Setting tf_key %d for module %s", config.tf_key, name_.c_str());
+        ROS_INFO("Setting tf_dof %d for module %s", config.tf_dof, name_.c_str());
     }
     if (params.hasMember("dir_key")) {
 
@@ -89,9 +89,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
             ROS_ERROR("%s: dir_key has wrong type, ignoring", name_.c_str());
         }
 
-        config.dir_key = static_cast<int>(dir_key_);
+        config.direction = static_cast<int>(dir_key_);
 
-        ROS_INFO("Setting dir_key %d for module %s", config.dir_key, name_.c_str());
+        ROS_INFO("Setting direction %d for module %s", config.direction, name_.c_str());
     }
     if (params.hasMember("deadzone_factor") && params["deadzone_factor"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
         config.deadzone_factor = static_cast<double> (params["deadzone_factor"]);
@@ -101,9 +101,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         config.velocity_factor = static_cast<double> (params["velocity_factor"]);
         ROS_INFO("Setting velocity_factor %f for module %s", config.velocity_factor, name_.c_str());
     }
-    if (params.hasMember("velocity_upper") && params["velocity_upper"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
-        config.velocity_upper = static_cast<double> (params["velocity_upper"]);
-        ROS_INFO("Setting velocity_upper %f for module %s", config.velocity_upper, name_.c_str());
+    if (params.hasMember("max_velocity") && params["max_velocity"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
+        config.max_velocity = static_cast<double> (params["max_velocity"]);
+        ROS_INFO("Setting max_velocity %f for module %s", config.max_velocity, name_.c_str());
     }
 
     boost::recursive_mutex::scoped_lock dyn_reconf_lock(dyn_reconfigure_mutex_);
@@ -160,7 +160,7 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
         }
     }
 
-    if(std::fabs(velocity) > velocity_upper_){
+    if(std::fabs(velocity) > max_velocity_){
         velocity = 0;
     }
 
@@ -194,7 +194,7 @@ double MovementModule::getPositionByKey(ros::Time time){
 
     //get transform, on error return 0
     try{
-        listener_.lookupTransform(tf_src_, tf_dst_, ros::Time(0), transform_);
+        listener_.lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
         ROS_DEBUG("got transform!");
     }
     catch (tf::TransformException ex){
@@ -237,33 +237,33 @@ void MovementModule::parameterCallback(force_guiding::ModuleConfig &config, uint
 //getting all values from the dyn_reconfigure config
 void MovementModule::readConfig(force_guiding::ModuleConfig &config){
 
-    if(tf_src_ != config.tf_src){
-        ROS_INFO("%s setting new tf_src %s", name_.c_str(), config.tf_src.c_str());
-        tf_src_ = config.tf_src.c_str();
+    if(source_frame_ != config.source_frame){
+        ROS_INFO("%s setting new source_frame %s", name_.c_str(), config.source_frame.c_str());
+        source_frame_ = config.source_frame.c_str();
         reference_position_ = getPositionByKey();
     }
 
-    if(tf_dst_ != config.tf_dst){
-        ROS_INFO("%s setting new tf_dst %s", name_.c_str(), config.tf_dst.c_str());
-        tf_dst_ = config.tf_dst.c_str();
+    if(target_frame_ != config.target_frame){
+        ROS_INFO("%s setting new target_frame %s", name_.c_str(), config.target_frame.c_str());
+        target_frame_ = config.target_frame.c_str();
         reference_position_ = getPositionByKey();
     }
 
-    if(tf_key_ != tf_key(config.tf_key)){
-        ROS_INFO("%s setting new tf_key %d", name_.c_str(), config.tf_key);
-        tf_key_ = tf_key(config.tf_key);
+    if(tf_key_ != tf_key(config.tf_dof)){
+        ROS_INFO("%s setting new tf_dof %d", name_.c_str(), config.tf_dof);
+        tf_key_ = tf_key(config.tf_dof);
         reference_position_ = getPositionByKey();
     }
 
-    cmd_key_ = cmd_key(config.cmd_key);
+    cmd_key_ = cmd_key(config.velocity_dof);
 
-    dir_key_ = dir_key(config.dir_key);
+    dir_key_ = dir_key(config.direction);
 
-    velocity_upper_ = config.velocity_upper;
+    max_velocity_ = config.max_velocity;
     velocity_factor_ = config.velocity_factor;
     deadzone_factor_ = config.deadzone_factor;
     
-    enable_toggle_ = config.enable_toggle;
+    enable_toggle_ = config.enabled;
 } 
 
 bool MovementModule::matchTfKey(tf_key& key, std::string key_string) {

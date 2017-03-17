@@ -67,8 +67,8 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
         } else if (!config[i].hasMember("name") || config[i]["name"].getType() != XmlRpc::XmlRpcValue::TypeString) {
             ROS_ERROR("Could not add module %d because no valid name was given", i);
             valid = false;
-        } else if (!config[i].hasMember("cmd_key")) {
-            ROS_ERROR("Could not add %s because no cmd_key was given", std::string(config[i]["name"]).c_str());
+        } else if (!config[i].hasMember("velocity_dof")) {
+            ROS_ERROR("Could not add %s because no velocity_dof was given", std::string(config[i]["name"]).c_str());
             valid = false;
         }
         
@@ -83,14 +83,14 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
 
         cmd_key key;
 
-        if (config[i]["cmd_key"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
-            if(!matchCmdKey(key, module_name, int(config[i]["cmd_key"])))
+        if (config[i]["velocity_dof"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
+            if(!matchCmdKey(key, module_name, int(config[i]["velocity_dof"])))
                 valid = false;
-        } else if (config[i]["cmd_key"].getType() == XmlRpc::XmlRpcValue::TypeString) {
-            if(!matchCmdKey(key, module_name, std::string(config[i]["cmd_key"])))
+        } else if (config[i]["velocity_dof"].getType() == XmlRpc::XmlRpcValue::TypeString) {
+            if(!matchCmdKey(key, module_name, std::string(config[i]["velocity_dof"])))
                 valid = false;
         } else {
-            ROS_ERROR("Could not add %s because cmd_key was not valid", module_name.c_str());
+            ROS_ERROR("Could not add %s because velocity_dof was not valid", module_name.c_str());
             valid = false;
         }
 
@@ -235,12 +235,12 @@ void MovementController::parameterCallback(force_guiding::ControllerConfig &conf
     }
     
     //set priority or fcfs mode
-    priority_ = config.priority_toggle;
+    priority_ = config.priority_mode;
 
-    std::vector<std::string> new_module = split(config.add_module, ' ');
+    std::vector<std::string> new_module = split(config.new_module, ' ');
     
     if(static_cast<int> (new_module.size()) != 2){
-        ROS_ERROR("Controller: wrong arguments in add_module");
+        ROS_ERROR("Controller: wrong arguments in new_module");
         return;
     }
     

@@ -1,46 +1,46 @@
 ModuleList:
 - name: arm_left
-  cmd_key: LINEAR_Y
+  velocity_dof: LINEAR_Y
   params:
-    tf_dst: wrist_LEFT
-    tf_key: Y_AXIS
-    dir_key: POSITIVE
+    target_frame: wrist_LEFT
+    tf_dof: Y_AXIS
+    direction: POSITIVE
 
 - name: arm_right
-  cmd_key: LINEAR_Y
+  velocity_dof: LINEAR_Y
   params:
-    tf_dst: wrist_RIGHT
-    tf_key: Y_AXIS
-    dir_key: NEGATIVE
+    target_frame: wrist_RIGHT
+    tf_dof: Y_AXIS
+    direction: NEGATIVE
 
 - name: torso_front
-  cmd_key: LINEAR_X
+  velocity_dof: LINEAR_X
   params:
-    tf_src: panplate
-    tf_dst: neck_pan
-    tf_key: X_AXIS
-    dir_key: POSITIVE
+    source_frame: panplate
+    target_frame: neck_pan
+    tf_dof: X_AXIS
+    direction: POSITIVE
     velocity_factor: 1.4
     deadzone_factor: 0.5
 
 - name: torso_lin
-  cmd_key: LINEAR_X
+  velocity_dof: LINEAR_X
   params:
-    tf_src: panplate
-    tf_dst: neck_pan
-    tf_key: X_AXIS
-    dir_key: NEGATIVE
+    source_frame: panplate
+    target_frame: neck_pan
+    tf_dof: X_AXIS
+    direction: NEGATIVE
     velocity_factor: 1.7
     deadzone_factor: 0.3
 
 - name: torso_ang
-  cmd_key: ANGULAR_Z
+  velocity_dof: ANGULAR_Z
   params:
-    tf_src: panplate
-    tf_dst: neck_pan
-    tf_key: YAW
-    dir_key: BIDIRECTIONAL
-    velocity_upper: 1.0
+    source_frame: panplate
+    target_frame: neck_pan
+    tf_dof: YAW
+    direction: BIDIRECTIONAL
+    max_velocity: 1.0
     velocity_factor: 1.2
     deadzone_factor: 0.75
 
