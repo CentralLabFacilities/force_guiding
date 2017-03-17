@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>meka_guiding</name>
+  <name>force_guiding</name>
   <version>0.0.0</version>
-  <description>The meka_guiding package</description>
+  <description>The force_guiding package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <maintainer email="llach@techfak.uni-bielefeld.de">llach</maintainer>

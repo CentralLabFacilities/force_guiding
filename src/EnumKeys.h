@@ -2,8 +2,8 @@
 // Created by llach on 23.02.17.
 //
 
-#ifndef MEKA_GUIDING_ENUMKEYS_H
-#define MEKA_GUIDING_ENUMKEYS_H
+#ifndef FORCE_GUIDING_ENUMKEYS_H
+#define FORCE_GUIDING_ENUMKEYS_H
 
 enum class tf_key {
     X_AXIS,
@@ -32,4 +32,4 @@ enum class dir_key {
     DIR_KEY_MAX = BIDIRECTIONAL
 };
 
-#endif //MEKA_GUIDING_ENUMKEYS_H
+#endif //FORCE_GUIDING_ENUMKEYS_H

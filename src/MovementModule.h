@@ -5,16 +5,16 @@
  * Created on February 22, 2017, 5:48 PM
  */
 
-#ifndef MEKA_GUIDING_MOVEMENTMODULE_H
-#define	MEKA_GUIDING_MOVEMENTMODULE_H
+#ifndef FORCE_GUIDING_MOVEMENTMODULE_H
+#define	FORCE_GUIDING_MOVEMENTMODULE_H
 
 #include "ros/ros.h"
 #include "tf/transform_listener.h"
 #include <XmlRpcException.h>
 #include "dynamic_reconfigure/server.h"
-#include "meka_guiding/Velocity.h"
+#include "force_guiding/Velocity.h"
 #include "EnumKeys.h"
-#include <meka_guiding/ModuleConfig.h>
+#include <force_guiding/ModuleConfig.h>
 
 class MovementModule {
 
@@ -39,8 +39,8 @@ private:
     bool enable_toggle_;
 
     boost::recursive_mutex dyn_reconfigure_mutex_;
-    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ModuleConfig> > dyn_reconfigure_server_ptr_;
-    dynamic_reconfigure::Server<meka_guiding::ModuleConfig>::CallbackType f_;
+    boost::shared_ptr<dynamic_reconfigure::Server<force_guiding::ModuleConfig> > dyn_reconfigure_server_ptr_;
+    dynamic_reconfigure::Server<force_guiding::ModuleConfig>::CallbackType f_;
 
     boost::shared_ptr<ros::ServiceServer> service_ptr_;
 
@@ -70,11 +70,11 @@ private:
     double last_vel_ = 0;
     
     /**     functions   **/
-    bool calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response);
+    bool calcVelocity(force_guiding::Velocity::Request &request, force_guiding::Velocity::Response &response);
     double getPositionByKey(ros::Time  = ros::Time::now());
     void overrideDefaultParameter(XmlRpc::XmlRpcValue params);
-    void readConfig(meka_guiding::ModuleConfig &config);
-    void parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level);
+    void readConfig(force_guiding::ModuleConfig &config);
+    void parameterCallback(force_guiding::ModuleConfig &config, uint32_t level);
     
     bool matchTfKey(tf_key& key, std::string key_string);
     bool matchTfKey(tf_key& key, int key_int);
@@ -84,5 +84,5 @@ private:
 
 
 
-#endif	/* MEKA_GUIDING_MOVEMENTMODULE_H */
+#endif	/* FORCE_GUIDING_MOVEMENTMODULE_H */
 

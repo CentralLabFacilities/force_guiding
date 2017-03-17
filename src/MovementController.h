@@ -2,12 +2,12 @@
 // Created by llach on 03.03.17.
 //
 
-#ifndef MEKA_GUIDING_MOVEMENTCONTROLLER_H
-#define MEKA_GUIDING_MOVEMENTCONTROLLER_H
+#ifndef FORCE_GUIDING_MOVEMENTCONTROLLER_H
+#define FORCE_GUIDING_MOVEMENTCONTROLLER_H
 
 #include "geometry_msgs/Twist.h"
 #include "MovementModule.h"
-#include <meka_guiding/ControllerConfig.h>
+#include <force_guiding/ControllerConfig.h>
 #include <thread>
 
 class MovementController {
@@ -22,8 +22,8 @@ public:
 private:
     /**     dynamic     **/
     boost::recursive_mutex dyn_reconfigure_mutex_;
-    boost::shared_ptr<dynamic_reconfigure::Server<meka_guiding::ControllerConfig> > dyn_reconfigure_server_ptr_;
-    dynamic_reconfigure::Server<meka_guiding::ControllerConfig>::CallbackType f_;
+    boost::shared_ptr<dynamic_reconfigure::Server<force_guiding::ControllerConfig> > dyn_reconfigure_server_ptr_;
+    dynamic_reconfigure::Server<force_guiding::ControllerConfig>::CallbackType f_;
 
     bool priority_;
     bool startup = true;
@@ -58,7 +58,7 @@ private:
     };
 
     /**     functions    **/
-    void parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level);
+    void parameterCallback(force_guiding::ControllerConfig &config, uint32_t level);
     bool configure(ros::NodeHandle nh);
     void setConfig();
     std::vector<std::string> split(std::string str, char delimiter);
@@ -73,4 +73,4 @@ private:
 };
 
 
-#endif //MEKA_GUIDING_MOVEMENTCONTROLLER_H
+#endif //FORCE_GUIDING_MOVEMENTCONTROLLER_H

@@ -4,7 +4,7 @@
 int main(int argc, char **argv) {
 
     //init node
-    ros::init(argc, argv, "meka_guiding");
+    ros::init(argc, argv, "force_guiding");
 
     //create controller which then created modules
     MovementController mc;

@@ -10,7 +10,7 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
     
     //create dyn_reconf server with private node handle
     ros::NodeHandle nh(nhname_);
-    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ModuleConfig>(dyn_reconfigure_mutex_, nh));
+    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<force_guiding::ModuleConfig>(dyn_reconfigure_mutex_, nh));
 
     try {
         if(params.size() != 0 ){
@@ -42,7 +42,7 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     /* https://github.com/felix-kolbe/scitos_metralabs/blob/master/metralabs_ros/src/ScitosBase.cpp#L245 */
     
     //initially set config with module parameter 
-    meka_guiding::ModuleConfig config;
+    force_guiding::ModuleConfig config;
     dyn_reconfigure_server_ptr_.get()->getConfigDefault(config);
 
     config.cmd_key = static_cast<int>(cmd_key_);
@@ -112,7 +112,7 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 }
 
 //calculates new velocities to set depending on the deflections of the input joint
-bool MovementModule::calcVelocity(meka_guiding::Velocity::Request &request, meka_guiding::Velocity::Response &response){
+bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, force_guiding::Velocity::Response &response){
     double dist, velocity, actual_position;
 
     if (!enable_toggle_) {
@@ -229,13 +229,13 @@ double MovementModule::getPositionByKey(ros::Time time){
 }
 
 //callback for dyn_reconfigure
-void MovementModule::parameterCallback(meka_guiding::ModuleConfig &config, uint32_t level) {
+void MovementModule::parameterCallback(force_guiding::ModuleConfig &config, uint32_t level) {
     ROS_INFO("ParameterCallback %s", name_.c_str());
     readConfig(config);
 }
 
 //getting all values from the dyn_reconfigure config
-void MovementModule::readConfig(meka_guiding::ModuleConfig &config){
+void MovementModule::readConfig(force_guiding::ModuleConfig &config){
 
     if(tf_src_ != config.tf_src){
         ROS_INFO("%s setting new tf_src %s", name_.c_str(), config.tf_src.c_str());

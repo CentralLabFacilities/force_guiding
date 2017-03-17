@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(meka_guiding)
+project(force_guiding)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ## Find catkin macros and libraries
@@ -52,7 +52,7 @@ roslaunch_add_file_check(launch)
 
 catkin_package(
 #   INCLUDE_DIRS include
-#  LIBRARIES meka_guiding
+#  LIBRARIES force_guiding
   CATKIN_DEPENDS roscpp std_msgs geometry_msgs dynamic_reconfigure
 #  DEPENDS system_lib
 )
@@ -68,16 +68,16 @@ include_directories(
 )
 
 ## Declare a C++ executable
-add_executable(meka_guiding src/guiding.cpp src/MovementController.cpp src/MovementModule.cpp)
+add_executable(force_guiding src/guiding.cpp src/MovementController.cpp src/MovementModule.cpp)
 add_executable(stiffness_publisher src/stiffness_publisher.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(meka_guiding ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}  ${PROJECT_NAME}_gencfg)
+add_dependencies(force_guiding ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS}  ${PROJECT_NAME}_gencfg)
 add_dependencies(stiffness_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(meka_guiding
+target_link_libraries(force_guiding
         ${catkin_LIBRARIES}
 )
 

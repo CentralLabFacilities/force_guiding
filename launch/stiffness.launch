@@ -2,5 +2,5 @@
     <param name="astiff" value="$(arg astiff)" />
     <param name="tstiff" value="$(arg tstiff)" />
 
-    <node name="stiffness_publisher" pkg="meka_guiding" type="stiffness_publisher"  output="screen" />
+    <node name="stiffness_publisher" pkg="force_guiding" type="stiffness_publisher"  output="screen" />
 </launch>

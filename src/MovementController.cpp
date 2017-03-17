@@ -15,7 +15,7 @@ MovementController::MovementController() {
     }
 
     //setup dynamic_reconfigure
-    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<meka_guiding::ControllerConfig>(dyn_reconfigure_mutex_));
+    dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<force_guiding::ControllerConfig>(dyn_reconfigure_mutex_));
 
     f_ = boost::bind(&MovementController::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
@@ -132,7 +132,7 @@ bool MovementController::addModule(std::string name, cmd_key key, XmlRpc::XmlRpc
     std::string service_name(name);
     service_name.append("/calculateVelocity");
 
-    client_list.push_back(ros::NodeHandle("~").serviceClient<meka_guiding::Velocity>(service_name));
+    client_list.push_back(ros::NodeHandle("~").serviceClient<force_guiding::Velocity>(service_name));
     active_modules.push_back(name);
     ROS_DEBUG_STREAM("connected to: " << client_list[client_list.size() - 1].getService());
 
@@ -150,7 +150,7 @@ void MovementController::generateAndPublish() {
         /** maybe call async clients in one for loop and collect in another one **/
         
         for (auto client : client_list) {
-            meka_guiding::Velocity srv;
+            force_guiding::Velocity srv;
             srv.request.stamp = sync_stamp;
 
             if (client.call(srv)) {
@@ -226,7 +226,7 @@ void MovementController::setVelocityByKey(geometry_msgs::Twist& msg, double velo
 }
 
 
-void MovementController::parameterCallback(meka_guiding::ControllerConfig &config, uint32_t level) {
+void MovementController::parameterCallback(force_guiding::ControllerConfig &config, uint32_t level) {
     ROS_INFO_STREAM("ControllerReconfiguration");
     
     if (startup) {
@@ -265,7 +265,7 @@ void MovementController::parameterCallback(meka_guiding::ControllerConfig &confi
 //maybe not needed as this was required for killing modules which kills reconfigure
 void MovementController::setConfig() {
     //make sure all values are set
-    meka_guiding::ControllerConfig config;
+    force_guiding::ControllerConfig config;
     dyn_reconfigure_server_ptr_.get()->getConfigDefault(config);
 
     std::string module_list = "";

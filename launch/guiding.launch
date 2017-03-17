@@ -1,7 +1,7 @@
 <launch>
 
-    <rosparam command="load" file="$(find meka_guiding)/share/modules.yaml" />
+    <rosparam command="load" file="$(find force_guiding)/share/modules.yaml" />
 
     <param name="topic_pub" value="/cmd_vel" />
-    <node name="meka_guiding" pkg="meka_guiding" type="meka_guiding"  output="screen" />
+    <node name="force_guiding" pkg="force_guiding" type="force_guiding"  output="screen" />
 </launch>
