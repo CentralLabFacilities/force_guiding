@@ -169,17 +169,17 @@ void MovementController::generateAndPublish() {
                
                 if (priority_) {
                     if (srv.response.priority_flag) {
-                        cmd_map[cmd_key(srv.response.cmd_key)] = srv.response.name;
-                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
-                    } else if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == "") {
-                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                        cmd_map[cmd_key(srv.response.base_dof)] = srv.response.name;
+                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.base_dof));
+                    } else if (cmd_map[cmd_key(srv.response.base_dof)] == srv.response.name || cmd_map[cmd_key(srv.response.base_dof)] == "") {
+                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.base_dof));
                     } else {
                         continue;
                     }
                 } else {
-                    if (cmd_map[cmd_key(srv.response.cmd_key)] == srv.response.name || cmd_map[cmd_key(srv.response.cmd_key)] == "") {
-                        cmd_map[cmd_key(srv.response.cmd_key)] = srv.response.name;
-                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.cmd_key));
+                    if (cmd_map[cmd_key(srv.response.base_dof)] == srv.response.name || cmd_map[cmd_key(srv.response.base_dof)] == "") {
+                        cmd_map[cmd_key(srv.response.base_dof)] = srv.response.name;
+                        setVelocityByKey(twist, srv.response.vel, cmd_key(srv.response.base_dof));
                     } else {
                         continue;
                     }

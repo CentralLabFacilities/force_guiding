@@ -118,7 +118,7 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
     if (!enable_toggle_) {
         response.name = name_;
         response.vel = 0;
-        response.cmd_key = static_cast<int> (cmd_key_);
+        response.base_dof = static_cast<int> (cmd_key_);
         response.priority_flag = 0;
 
         if (last_vel_ != 0 && velocity == 0) {
@@ -168,7 +168,7 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
     
     response.name = name_;
     response.vel = velocity;
-    response.cmd_key = static_cast<int>(cmd_key_);
+    response.base_dof = static_cast<int>(cmd_key_);
     
     if(last_vel_ == 0 && velocity != 0){
         response.priority_flag = true;
