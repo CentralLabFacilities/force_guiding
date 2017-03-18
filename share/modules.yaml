@@ -1,44 +1,44 @@
 ModuleList:
 - name: arm_left
-  velocity_dof: LINEAR_Y
+  base_dof: LINEAR_Y
   params:
     target_frame: wrist_LEFT
-    tf_dof: Y_AXIS
+    transform_dof: Y_AXIS
     direction: POSITIVE
 
 - name: arm_right
-  velocity_dof: LINEAR_Y
+  base_dof: LINEAR_Y
   params:
     target_frame: wrist_RIGHT
-    tf_dof: Y_AXIS
+    transform_dof: Y_AXIS
     direction: NEGATIVE
 
 - name: torso_front
-  velocity_dof: LINEAR_X
+  base_dof: LINEAR_X
   params:
     source_frame: panplate
     target_frame: neck_pan
-    tf_dof: X_AXIS
+    transform_dof: X_AXIS
     direction: POSITIVE
     velocity_factor: 1.4
     deadzone_factor: 0.5
 
 - name: torso_lin
-  velocity_dof: LINEAR_X
+  base_dof: LINEAR_X
   params:
     source_frame: panplate
     target_frame: neck_pan
-    tf_dof: X_AXIS
+    transform_dof: X_AXIS
     direction: NEGATIVE
     velocity_factor: 1.7
     deadzone_factor: 0.3
 
 - name: torso_ang
-  velocity_dof: ANGULAR_Z
+  base_dof: ANGULAR_Z
   params:
     source_frame: panplate
     target_frame: neck_pan
-    tf_dof: YAW
+    transform_dof: YAW
     direction: BIDIRECTIONAL
     max_velocity: 1.0
     velocity_factor: 1.2

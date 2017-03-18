@@ -45,7 +45,7 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     force_guiding::ModuleConfig config;
     dyn_reconfigure_server_ptr_.get()->getConfigDefault(config);
 
-    config.velocity_dof = static_cast<int>(cmd_key_);
+    config.base_dof = static_cast<int>(cmd_key_);
 
 
     if (params.hasMember("source_frame") && params["source_frame"].getType() == XmlRpc::XmlRpcValue::TypeString) {
@@ -70,9 +70,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
             ROS_ERROR("%s: tf_key has wrong type, ignoring", name_.c_str());
         }
 
-        config.tf_dof = static_cast<int>(tf_key_);
+        config.transform_dof = static_cast<int>(tf_key_);
 
-        ROS_INFO("Setting tf_dof %d for module %s", config.tf_dof, name_.c_str());
+        ROS_INFO("Setting transform_dof %d for module %s", config.transform_dof, name_.c_str());
     }
     if (params.hasMember("dir_key")) {
 
@@ -249,13 +249,13 @@ void MovementModule::readConfig(force_guiding::ModuleConfig &config){
         reference_position_ = getPositionByKey();
     }
 
-    if(tf_key_ != tf_key(config.tf_dof)){
-        ROS_INFO("%s setting new tf_dof %d", name_.c_str(), config.tf_dof);
-        tf_key_ = tf_key(config.tf_dof);
+    if(tf_key_ != tf_key(config.transform_dof)){
+        ROS_INFO("%s setting new transform_dof %d", name_.c_str(), config.transform_dof);
+        tf_key_ = tf_key(config.transform_dof);
         reference_position_ = getPositionByKey();
     }
 
-    cmd_key_ = cmd_key(config.velocity_dof);
+    cmd_key_ = cmd_key(config.base_dof);
 
     dir_key_ = dir_key(config.direction);
 

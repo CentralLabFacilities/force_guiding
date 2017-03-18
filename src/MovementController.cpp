@@ -67,8 +67,8 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
         } else if (!config[i].hasMember("name") || config[i]["name"].getType() != XmlRpc::XmlRpcValue::TypeString) {
             ROS_ERROR("Could not add module %d because no valid name was given", i);
             valid = false;
-        } else if (!config[i].hasMember("velocity_dof")) {
-            ROS_ERROR("Could not add %s because no velocity_dof was given", std::string(config[i]["name"]).c_str());
+        } else if (!config[i].hasMember("base_dof")) {
+            ROS_ERROR("Could not add %s because no base_dof was given", std::string(config[i]["name"]).c_str());
             valid = false;
         }
         
@@ -83,14 +83,14 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
 
         cmd_key key;
 
-        if (config[i]["velocity_dof"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
-            if(!matchCmdKey(key, module_name, int(config[i]["velocity_dof"])))
+        if (config[i]["base_dof"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
+            if(!matchCmdKey(key, module_name, int(config[i]["base_dof"])))
                 valid = false;
-        } else if (config[i]["velocity_dof"].getType() == XmlRpc::XmlRpcValue::TypeString) {
-            if(!matchCmdKey(key, module_name, std::string(config[i]["velocity_dof"])))
+        } else if (config[i]["base_dof"].getType() == XmlRpc::XmlRpcValue::TypeString) {
+            if(!matchCmdKey(key, module_name, std::string(config[i]["base_dof"])))
                 valid = false;
         } else {
-            ROS_ERROR("Could not add %s because velocity_dof was not valid", module_name.c_str());
+            ROS_ERROR("Could not add %s because base_dof was not valid", module_name.c_str());
             valid = false;
         }
 
