@@ -33,8 +33,7 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
 
-    
-
+    ROS_INFO("getting intial position");
     //get initial position
     reference_position_ = getPositionByKey();
 
@@ -54,6 +53,8 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     if (params.hasMember("source_frame") && params["source_frame"].getType() == XmlRpc::XmlRpcValue::TypeString) {
         config.source_frame = std::string(params["source_frame"]);
         ROS_INFO("Setting source_frame %s for module %s", config.source_frame.c_str(), name_.c_str());
+    } else {
+        config.source_frame = "base_link";
     }
     if (params.hasMember("target_frame") && params["target_frame"].getType() == XmlRpc::XmlRpcValue::TypeString) {
         config.target_frame = std::string(params["target_frame"]);
