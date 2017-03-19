@@ -1,13 +1,13 @@
 #include "MovementModule.h"
 
-MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) : 
-    name_(name), 
+MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params) :
+    name_(name),
     cmd_key_(key) {
     ROS_DEBUG("creating module for cmd_key %d", static_cast<int>(key));
-    
+
     //new name for private
     std::string nhname_ = std::string("~").append(name);
-    
+
     //create dyn_reconf server with private node handle
     ros::NodeHandle nh(nhname_);
     dyn_reconfigure_server_ptr_.reset(new dynamic_reconfigure::Server<force_guiding::ModuleConfig>(dyn_reconfigure_mutex_, nh));
@@ -27,11 +27,11 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
     //create server
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
-    
+
     //waitin, otherwise the first tf would always fail
     ROS_INFO("waiting for transform for .5s");
     listener_.waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(0.5));
-    
+
     //get initial position
     reference_position_ = getPositionByKey();
 
@@ -40,8 +40,8 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
 
 void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     /* https://github.com/felix-kolbe/scitos_metralabs/blob/master/metralabs_ros/src/ScitosBase.cpp#L245 */
-    
-    //initially set config with module parameter 
+
+    //initially set config with module parameter
     force_guiding::ModuleConfig config;
     dyn_reconfigure_server_ptr_.get()->getConfigDefault(config);
 
@@ -57,9 +57,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         ROS_INFO("Setting target_frame %s for module %s", config.target_frame.c_str(), name_.c_str());
     }
     if (params.hasMember("tf_key")) {
-        
+
         tf_key key;
-        
+
         if(params["tf_key"].getType() == XmlRpc::XmlRpcValue::TypeInt){
             if(matchTfKey(key, int(params["tf_key"])))
                 tf_key_ = key;
@@ -76,9 +76,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
     }
     if (params.hasMember("dir_key")) {
 
-        
+
         dir_key key;
-        
+
         if(params["dir_key"].getType() == XmlRpc::XmlRpcValue::TypeInt){
             if(matchDirKey(key, int(params["dir_key"])))
                 dir_key_ = key;
@@ -161,31 +161,31 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
     }
 
     if(std::fabs(velocity) > max_velocity_){
-        velocity = 0;
+        velocity = max_velocity_;
     }
 
     ROS_DEBUG("Module(%d) %s: [%f, %f, %f]", static_cast<int>(dir_key_), name_.c_str(), reference_position_, actual_position, velocity);
-    
+
     response.name = name_;
     response.vel = velocity;
     response.base_dof = static_cast<int>(cmd_key_);
-    
+
     if(last_vel_ == 0 && velocity != 0){
         response.priority_flag = true;
     } else {
         response.priority_flag = false;
     }
-    
+
     if(last_vel_ != 0 && velocity == 0){
         response.finished_movement = true;
     } else {
         response.finished_movement = false;
     }
-    
+
     last_vel_ = velocity;
-    
+
     return true;
-    
+
 }
 
 //gets transform and returns value depending on tf key of the module
@@ -212,7 +212,7 @@ double MovementModule::getPositionByKey(ros::Time time){
         case tf_key::Z_AXIS:
             return transform_.getOrigin().getZ();
     }
-    
+
     //get RPY as these values are not directly returnable
     double roll, pitch, yaw;
     transform_.getBasis().getRPY(roll, pitch, yaw);
@@ -262,9 +262,9 @@ void MovementModule::readConfig(force_guiding::ModuleConfig &config){
     max_velocity_ = config.max_velocity;
     velocity_factor_ = config.velocity_factor;
     deadzone_factor_ = config.deadzone_factor;
-    
+
     enable_toggle_ = config.enabled;
-} 
+}
 
 bool MovementModule::matchTfKey(tf_key& key, std::string key_string) {
     bool found = false;
@@ -277,7 +277,7 @@ bool MovementModule::matchTfKey(tf_key& key, std::string key_string) {
             break;
         }
     }
-    
+
     if(!found)
         ROS_ERROR("the given string %s does not map to a tf_key", key_string.c_str());
 
@@ -291,7 +291,7 @@ bool MovementModule::matchTfKey(tf_key& key, int key_int) {
     } else {
         key = tf_key(key_int);
     }
-    
+
     return true;
 }
 
@@ -306,7 +306,7 @@ bool MovementModule::matchDirKey(dir_key& key, std::string key_string) {
             break;
         }
     }
-    
+
     if(!found)
         ROS_ERROR("the given string %s does not map to a dir_key", key_string.c_str());
 
@@ -320,6 +320,6 @@ bool MovementModule::matchDirKey(dir_key& key, int key_int) {
     } else {
         key = dir_key(key_int);
     }
-    
+
     return true;
 }
