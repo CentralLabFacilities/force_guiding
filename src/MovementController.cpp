@@ -58,6 +58,7 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
     }
 
     bool valid = true;
+    cmd_key key;
 
     //Iterate over all modules
     for (int i = 0; i < config.size(); ++i) {
@@ -68,8 +69,8 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
             ROS_ERROR("Could not add module %d because no valid name was given", i);
             valid = false;
         } else if (!config[i].hasMember("base_dof")) {
-            ROS_ERROR("Could not add %s because no base_dof was given", std::string(config[i]["name"]).c_str());
-            valid = false;
+            ROS_INFO("%s no base_dof was given, using default", std::string(config[i]["name"]).c_str());
+            key = cmd_key::LINEAR_X;
         }
         
         std::string module_name = std::string(config[i]["name"]);
@@ -81,17 +82,16 @@ bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
             }
         }
 
-        cmd_key key;
-
+        
         if (config[i]["base_dof"].getType() == XmlRpc::XmlRpcValue::TypeInt) {
             if(!matchCmdKey(key, module_name, int(config[i]["base_dof"])))
-                valid = false;
+                key = cmd_key::LINEAR_X;
         } else if (config[i]["base_dof"].getType() == XmlRpc::XmlRpcValue::TypeString) {
             if(!matchCmdKey(key, module_name, std::string(config[i]["base_dof"])))
-                valid = false;
+                key = cmd_key::LINEAR_X;
         } else {
-            ROS_ERROR("Could not add %s because base_dof was not valid", module_name.c_str());
-            valid = false;
+            ROS_INFO("%s using default dof, because base_dof was not valid", module_name.c_str());
+            key = cmd_key::LINEAR_X;
         }
 
         if (!valid)

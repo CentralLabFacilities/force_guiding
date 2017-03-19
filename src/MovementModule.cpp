@@ -24,13 +24,15 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
         ROS_WARN("Module %s is using defaults, XmlRpc says: %s", name.c_str(), exception.getMessage().c_str());
     }
 
+    //waitin, otherwise the first tf would always fail
+    ROS_INFO("%s waiting for transform for 1s", name.c_str());
+    listener_.waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(1.0));
+    
     //create server
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
 
-    //waitin, otherwise the first tf would always fail
-    ROS_INFO("waiting for transform for .5s");
-    listener_.waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(0.5));
+    
 
     //get initial position
     reference_position_ = getPositionByKey();
