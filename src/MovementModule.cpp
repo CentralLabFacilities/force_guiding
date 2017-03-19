@@ -107,6 +107,10 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         config.max_velocity = static_cast<double> (params["max_velocity"]);
         ROS_INFO("Setting max_velocity %f for module %s", config.max_velocity, name_.c_str());
     }
+    if (params.hasMember("enabled") && params["enabled"].getType() == XmlRpc::XmlRpcValue::TypeBoolean) {
+        config.enabled = static_cast<bool> (params["enabled"]);
+        ROS_INFO("Setting enabled flag for module %s", name_.c_str());
+    }
 
     boost::recursive_mutex::scoped_lock dyn_reconf_lock(dyn_reconfigure_mutex_);
     dyn_reconfigure_server_ptr_.get()->updateConfig(config);
