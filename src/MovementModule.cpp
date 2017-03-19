@@ -25,8 +25,9 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
     }
 
     //waitin, otherwise the first tf would always fail
+    listener_ptr_.reset(new tf::TransformListener);
     ROS_INFO("%s waiting for transform for 1s", name.c_str());
-    listener_.waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(1.0));
+    listener_ptr_.get()->waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(1.0));
     
     //create server
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
@@ -200,7 +201,7 @@ double MovementModule::getPositionByKey(ros::Time time){
 
     //get transform, on error return 0
     try{
-        listener_.lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
+        listener_ptr_.get()->lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
         ROS_DEBUG("got transform!");
     }
     catch (tf::TransformException ex){

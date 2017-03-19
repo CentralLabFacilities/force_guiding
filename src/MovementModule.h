@@ -63,7 +63,7 @@ private:
     /**     variables   **/
     std::string name_;
     
-    tf::TransformListener listener_;
+    boost::shared_ptr<tf::TransformListener> listener_ptr_;
     tf::StampedTransform transform_;
 
     double reference_position_;

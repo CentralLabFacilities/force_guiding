@@ -239,26 +239,8 @@ void MovementController::parameterCallback(force_guiding::ControllerConfig &conf
 
     std::vector<std::string> new_module = split(config.new_module, ' ');
     
-    if(static_cast<int> (new_module.size()) != 2){
-        ROS_ERROR("Controller: wrong arguments in new_module");
-        return;
-    }
-    
-    cmd_key key;
-    
-    if (is_int(new_module[1])) {
-        if(!matchCmdKey(key, new_module[0], atoi(new_module[1].c_str()))){
-            return;
-        } else {
-            addModule(new_module[0], key);
-        }
-    } else {
-        if(!matchCmdKey(key, new_module[0], new_module[1])){
-            return;
-        } else {
-            addModule(new_module[0], key);
-        }
-    }
+    ROS_INFO("adding module %s", new_module[0].c_str());
+    addModule(new_module[0], cmd_key::LINEAR_X);
 }
 
 
