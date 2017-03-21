@@ -60,37 +60,37 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
         config.target_frame = std::string(params["target_frame"]);
         ROS_INFO("Setting target_frame %s for module %s", config.target_frame.c_str(), name_.c_str());
     }
-    if (params.hasMember("tf_key")) {
+    if (params.hasMember("transform_dof")) {
 
         tf_key key;
 
-        if(params["tf_key"].getType() == XmlRpc::XmlRpcValue::TypeInt){
-            if(matchTfKey(key, int(params["tf_key"])))
+        if(params["transform_dof"].getType() == XmlRpc::XmlRpcValue::TypeInt){
+            if(matchTfKey(key, int(params["transform_dof"])))
                 tf_key_ = key;
-        } else if(params["tf_key"].getType() == XmlRpc::XmlRpcValue::TypeString){
-            if(matchTfKey(key, std::string(params["tf_key"])))
+        } else if(params["transform_dof"].getType() == XmlRpc::XmlRpcValue::TypeString){
+            if(matchTfKey(key, std::string(params["transform_dof"])))
                 tf_key_ = key;
         } else {
-            ROS_ERROR("%s: tf_key has wrong type, ignoring", name_.c_str());
+            ROS_ERROR("%s: transform_dof has wrong type, ignoring", name_.c_str());
         }
 
         config.transform_dof = static_cast<int>(tf_key_);
 
         ROS_INFO("Setting transform_dof %d for module %s", config.transform_dof, name_.c_str());
     }
-    if (params.hasMember("dir_key")) {
+    if (params.hasMember("direction")) {
 
 
         dir_key key;
 
-        if(params["dir_key"].getType() == XmlRpc::XmlRpcValue::TypeInt){
-            if(matchDirKey(key, int(params["dir_key"])))
+        if(params["direction"].getType() == XmlRpc::XmlRpcValue::TypeInt){
+            if(matchDirKey(key, int(params["direction"])))
                 dir_key_ = key;
-        } else if(params["dir_key"].getType() == XmlRpc::XmlRpcValue::TypeString){
-            if(matchDirKey(key, std::string(params["dir_key"])))
+        } else if(params["direction"].getType() == XmlRpc::XmlRpcValue::TypeString){
+            if(matchDirKey(key, std::string(params["direction"])))
                 dir_key_ = key;
         } else {
-            ROS_ERROR("%s: dir_key has wrong type, ignoring", name_.c_str());
+            ROS_ERROR("%s: direction has wrong type, ignoring", name_.c_str());
         }
 
         config.direction = static_cast<int>(dir_key_);
