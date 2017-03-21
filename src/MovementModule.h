@@ -60,6 +60,8 @@ private:
         {"BIDIRECTIONAL", dir_key::BIDIRECTIONAL}
     };
     
+    const int UNIT_FACTOR = 100;
+    
     /**     variables   **/
     std::string name_;
     

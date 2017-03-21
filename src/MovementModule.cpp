@@ -147,23 +147,31 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
     actual_position = getPositionByKey(request.stamp);
     dist = std::fabs(reference_position_ - actual_position);
 
+    /** diveded by 100 for cm conversion  */
+    
     //calculate velocity depending on dir key
     if(dir_key_ == dir_key::POSITIVE || dir_key_ == dir_key::BIDIRECTIONAL){
-        if(reference_position_ < 0 && (actual_position > (reference_position_ * (1 - deadzone_factor_)))){
+        if(reference_position_ < 0 && (actual_position > (reference_position_ + deadzone_factor_ / UNIT_FACTOR))){
+            ROS_INFO("%s case1",name_.c_str() );
             velocity = dist * velocity_factor_;
-        } else if(reference_position_ > 0 && (actual_position > (reference_position_ * (1 + deadzone_factor_)))){
+        } else if(reference_position_ > 0 && (actual_position > (reference_position_ + deadzone_factor_ / UNIT_FACTOR))){
             velocity = dist * velocity_factor_;
-        } else if(reference_position_ == 0 && (actual_position > deadzone_factor_)) {
+            ROS_INFO("%s case2", name_.c_str());
+        } else if(reference_position_ == 0 && (actual_position > deadzone_factor_ / UNIT_FACTOR)) {
             velocity = dist * velocity_factor_;
+            ROS_INFO("%s case3",name_.c_str());
         }
     }
 
     if (dir_key_ == dir_key::NEGATIVE || dir_key_ == dir_key::BIDIRECTIONAL){
-        if(reference_position_ < 0 && (actual_position < (reference_position_ * (1 + deadzone_factor_)))){
+        if(reference_position_ < 0 && (actual_position < (reference_position_ - deadzone_factor_ / UNIT_FACTOR))){
+            ROS_INFO("%s case11", name_.c_str());
             velocity = -(dist * velocity_factor_);
-        } else if(reference_position_ > 0 && (actual_position < (reference_position_ * (1 - deadzone_factor_)))){
+        } else if(reference_position_ > 0 && (actual_position < (reference_position_ - deadzone_factor_ / UNIT_FACTOR))){
+            ROS_INFO("%s case12", name_.c_str());
             velocity = -(dist * velocity_factor_);
-        } else if(reference_position_ == 0 && (actual_position < -(deadzone_factor_))) {
+        } else if(reference_position_ == 0 && (actual_position < -(deadzone_factor_) / UNIT_FACTOR)) {
+            ROS_INFO("%s case13", name_.c_str());
             velocity = -(dist * velocity_factor_);
         }
     }
