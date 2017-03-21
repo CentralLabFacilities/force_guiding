@@ -21,7 +21,7 @@ ModuleList:
     transform_dof: X_AXIS
     direction: POSITIVE
     velocity_factor: 1.4
-    deadzone_factor: 1.5
+    deadzone: 1.5
 
 - name: torso_back
   base_dof: LINEAR_X
@@ -31,7 +31,7 @@ ModuleList:
     transform_dof: X_AXIS
     direction: NEGATIVE
     velocity_factor: 1.7
-    deadzone_factor: 1.0
+    deadzone: 1.0
 
 - name: torso_ang
   base_dof: ANGULAR_Z
@@ -42,5 +42,5 @@ ModuleList:
     direction: BIDIRECTIONAL
     max_velocity: 1.0
     velocity_factor: 1.2
-    deadzone_factor: 10.0
+    deadzone: 10.0
 

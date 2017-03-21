@@ -34,7 +34,7 @@ private:
     
     double max_velocity_;
     double velocity_factor_;
-    double deadzone_factor_;
+    double deadzone_;
     
     bool enable_toggle_;
 

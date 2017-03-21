@@ -97,9 +97,9 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 
         ROS_INFO("Setting direction %d for module %s", config.direction, name_.c_str());
     }
-    if (params.hasMember("deadzone_factor") && params["deadzone_factor"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
-        config.deadzone_factor = static_cast<double> (params["deadzone_factor"]);
-        ROS_INFO("Setting deadzone_factor %f for module %s", config.deadzone_factor, name_.c_str());
+    if (params.hasMember("deadzone") && params["deadzone"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
+        config.deadzone = static_cast<double> (params["deadzone"]);
+        ROS_INFO("Setting deadzone_ %f for module %s", config.deadzone, name_.c_str());
     }
     if (params.hasMember("velocity_factor") && params["velocity_factor"].getType() == XmlRpc::XmlRpcValue::TypeDouble) {
         config.velocity_factor = static_cast<double> (params["velocity_factor"]);
@@ -151,26 +151,26 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
     
     //calculate velocity depending on dir key
     if(dir_key_ == dir_key::POSITIVE || dir_key_ == dir_key::BIDIRECTIONAL){
-        if(reference_position_ < 0 && (actual_position > (reference_position_ + deadzone_factor_ / UNIT_FACTOR))){
+        if(reference_position_ < 0 && (actual_position > (reference_position_ + deadzone_ / UNIT_FACTOR))){
             ROS_INFO("%s case1",name_.c_str() );
             velocity = dist * velocity_factor_;
-        } else if(reference_position_ > 0 && (actual_position > (reference_position_ + deadzone_factor_ / UNIT_FACTOR))){
+        } else if(reference_position_ > 0 && (actual_position > (reference_position_ + deadzone_ / UNIT_FACTOR))){
             velocity = dist * velocity_factor_;
             ROS_INFO("%s case2", name_.c_str());
-        } else if(reference_position_ == 0 && (actual_position > deadzone_factor_ / UNIT_FACTOR)) {
+        } else if(reference_position_ == 0 && (actual_position > deadzone_ / UNIT_FACTOR)) {
             velocity = dist * velocity_factor_;
             ROS_INFO("%s case3",name_.c_str());
         }
     }
 
     if (dir_key_ == dir_key::NEGATIVE || dir_key_ == dir_key::BIDIRECTIONAL){
-        if(reference_position_ < 0 && (actual_position < (reference_position_ - deadzone_factor_ / UNIT_FACTOR))){
+        if(reference_position_ < 0 && (actual_position < (reference_position_ - deadzone_ / UNIT_FACTOR))){
             ROS_INFO("%s case11", name_.c_str());
             velocity = -(dist * velocity_factor_);
-        } else if(reference_position_ > 0 && (actual_position < (reference_position_ - deadzone_factor_ / UNIT_FACTOR))){
+        } else if(reference_position_ > 0 && (actual_position < (reference_position_ - deadzone_ / UNIT_FACTOR))){
             ROS_INFO("%s case12", name_.c_str());
             velocity = -(dist * velocity_factor_);
-        } else if(reference_position_ == 0 && (actual_position < -(deadzone_factor_) / UNIT_FACTOR)) {
+        } else if(reference_position_ == 0 && (actual_position < -(deadzone_) / UNIT_FACTOR)) {
             ROS_INFO("%s case13", name_.c_str());
             velocity = -(dist * velocity_factor_);
         }
@@ -277,7 +277,7 @@ void MovementModule::readConfig(force_guiding::ModuleConfig &config){
 
     max_velocity_ = config.max_velocity;
     velocity_factor_ = config.velocity_factor;
-    deadzone_factor_ = config.deadzone_factor;
+    deadzone_ = config.deadzone;
 
     enable_toggle_ = config.enabled;
 }
