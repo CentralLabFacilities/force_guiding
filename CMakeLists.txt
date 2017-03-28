@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
         roslaunch
         dynamic_reconfigure
         message_generation
+	actionlib
 )
 
 ################################################
@@ -25,10 +26,16 @@ find_package(catkin REQUIRED COMPONENTS
    Velocity.srv
 )
 
+add_action_files(
+	DIRECTORY action 
+	FILES Guiding.action
+)
+
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
    std_msgs
+   actionlib_msgs
 )
 
 ################################################
