@@ -4,7 +4,7 @@
 
 #include "MovementController.h"
 
-MovementController::MovementController(std::string name) : as_(nh, name, false){
+MovementController::MovementController(std::string name) : as_(nh, name, boost::bind(&MovementController::start, this, _1), false){
 
     //configure and load modules
     if (!configure(nh)) {
@@ -22,11 +22,6 @@ MovementController::MovementController(std::string name) : as_(nh, name, false){
         ROS_FATAL("No topic to publish!");
         ros::shutdown();
     }
-
-
-    //register the goal and feeback callbacks
-    as_.registerGoalCallback(boost::bind(&MovementController::start, this));
-    as_.registerPreemptCallback(boost::bind(&MovementController::preemptCallback, this));
     as_.start();
     
     //initialze publisher
@@ -34,25 +29,9 @@ MovementController::MovementController(std::string name) : as_(nh, name, false){
     
 }
 
-
-void MovementController::preemptCallback()
-  {
-    ROS_ERROR("force_guiding: Preempted");
-    
-    // set the action state to preempted
-    as_.setPreempted();
-}
-
-void MovementController::start() {
+void MovementController::start(const force_guiding::GuidingGoalConstPtr &goal) {
     ROS_INFO("creating message generator thread ... ");
-
-    if (!running_) {
-        as_.acceptNewGoal();
-
-
-        std::thread client_thread(&MovementController::generateAndPublish, this);
-        client_thread.detach();
-    }
+    generateAndPublish();
 }
 
 bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
@@ -169,8 +148,11 @@ void MovementController::generateAndPublish() {
         sync_stamp = ros::Time::now();
         twist = geometry_msgs::Twist();
         
-        if(!as_.isActive()) break;
-        
+        if(!as_.isActive() || as_.isPreemptRequested())  {
+            ROS_INFO("Preempted");
+            as_.setPreempted();
+            break;
+        }
         /** maybe call async clients in one for loop and collect in another one **/
         
         for (auto client : client_list) {

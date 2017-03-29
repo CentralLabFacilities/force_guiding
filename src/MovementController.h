@@ -78,7 +78,7 @@ private:
     bool matchCmdKey(cmd_key& key, std::string name, int key_int);
     
     void preemptCallback();
-    void start();
+    void start(const force_guiding::GuidingGoalConstPtr &goal);
 
 };
 
