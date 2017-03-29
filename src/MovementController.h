@@ -8,18 +8,20 @@
 #include "geometry_msgs/Twist.h"
 #include "MovementModule.h"
 #include <force_guiding/ControllerConfig.h>
+#include <dynamic_reconfigure/server.h>
+#include <actionlib/server/simple_action_server.h>
+#include <force_guiding/GuidingAction.h>
 #include <thread>
 
 class MovementController {
 
 public:
     /**     constructor     **/
-    MovementController();
-
-    /**     functions   **/
-    void start();
+    MovementController(std::string name);
 
 private:
+    ros::NodeHandle nh;
+    
     /**     dynamic     **/
     boost::recursive_mutex dyn_reconfigure_mutex_;
     boost::shared_ptr<dynamic_reconfigure::Server<force_guiding::ControllerConfig> > dyn_reconfigure_server_ptr_;
@@ -27,6 +29,7 @@ private:
 
     bool priority_;
     bool startup = true;
+    bool kill_thread_ = false;
 
     /**     variables   **/
     std::map<cmd_key, std::string> cmd_map = {
@@ -40,13 +43,17 @@ private:
     
     std::string topic_pub;
     boost::shared_ptr<ros::Publisher> pub_ptr_;
-
+    
     /**     module management   **/
     boost::mutex mv_mutex;
     std::vector<boost::shared_ptr<MovementModule> > mv;
     std::vector<std::string> active_modules;
     std::vector<ros::ServiceClient> client_list;
 
+    //actionlib
+    actionlib::SimpleActionServer<force_guiding::GuidingAction> as_;
+    bool running_ = false;
+    
     /**     constants   **/
     const std::map<std::string, cmd_key> cmd_string_map = {
         {"LINEAR_X", cmd_key::LINEAR_X},
@@ -69,6 +76,9 @@ private:
     
     bool matchCmdKey(cmd_key& key, std::string name, std::string key_string);
     bool matchCmdKey(cmd_key& key, std::string name, int key_int);
+    
+    void preemptCallback();
+    void start();
 
 };
 

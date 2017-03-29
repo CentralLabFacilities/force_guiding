@@ -4,9 +4,7 @@
 
 #include "MovementController.h"
 
-MovementController::MovementController() {
-
-    ros::NodeHandle nh;
+MovementController::MovementController(std::string name) : as_(nh, name, false){
 
     //configure and load modules
     if (!configure(nh)) {
@@ -25,16 +23,36 @@ MovementController::MovementController() {
         ros::shutdown();
     }
 
+
+    //register the goal and feeback callbacks
+    as_.registerGoalCallback(boost::bind(&MovementController::start, this));
+    as_.registerPreemptCallback(boost::bind(&MovementController::preemptCallback, this));
+    as_.start();
+    
     //initialze publisher
     pub_ptr_.reset(new ros::Publisher(nh.advertise<geometry_msgs::Twist>(topic_pub, 1)));
+    
+}
 
+
+void MovementController::preemptCallback()
+  {
+    ROS_ERROR("force_guiding: Preempted");
+    
+    // set the action state to preempted
+    as_.setPreempted();
 }
 
 void MovementController::start() {
     ROS_INFO("creating message generator thread ... ");
 
-    std::thread client_thread(&MovementController::generateAndPublish, this);
-    client_thread.detach();
+    if (!running_) {
+        as_.acceptNewGoal();
+
+
+        std::thread client_thread(&MovementController::generateAndPublish, this);
+        client_thread.detach();
+    }
 }
 
 bool MovementController::configure(ros::NodeHandle nh = ros::NodeHandle()) {
@@ -139,13 +157,19 @@ bool MovementController::addModule(std::string name, cmd_key key, XmlRpc::XmlRpc
     return true;
 }
 void MovementController::generateAndPublish() {
+    
     ros::Rate rate(100);
     ros::Time sync_stamp;
     geometry_msgs::Twist twist;
     
+    running_ = true;
+    
     while (ros::NodeHandle("~").ok()) {
+        ROS_ERROR("generate");
         sync_stamp = ros::Time::now();
         twist = geometry_msgs::Twist();
+        
+        if(!as_.isActive()) break;
         
         /** maybe call async clients in one for loop and collect in another one **/
         
@@ -199,6 +223,9 @@ void MovementController::generateAndPublish() {
         
         rate.sleep();
     }
+    
+    running_ = false;
+   
 }
 
 

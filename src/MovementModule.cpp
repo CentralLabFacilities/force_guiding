@@ -24,7 +24,7 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
         ROS_WARN("Module %s is using defaults, XmlRpc says: %s", name.c_str(), exception.getMessage().c_str());
     }
 
-    //waitin, otherwise the first tf would always fail
+    //waiting, otherwise the first tf would always fail
     listener_ptr_.reset(new tf::TransformListener);
     ROS_INFO("%s waiting for transform for 1s", name.c_str());
     listener_ptr_.get()->waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(1.0));
