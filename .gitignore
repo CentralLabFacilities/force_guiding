@@ -38,4 +38,4 @@ force_guiding.kdev4
 # CMake 
 CMakeFiles/
 CMakeCache.txt
-
+build/
