@@ -35,7 +35,7 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
 
     ROS_INFO("getting intial position");
     //get initial position
-    reference_position_ = getPositionByKey();
+    calibrate();
 
     service_ptr_.reset(new ros::ServiceServer(nh.advertiseService("calculateVelocity", &MovementModule::calcVelocity, this)));
 }
@@ -244,6 +244,11 @@ double MovementModule::getPositionByKey(ros::Time time){
     }
 }
 
+void MovementModule::calibrate() {
+    ROS_DEBUG("%s calibrates", name_.c_str());
+    reference_position_ = getPositionByKey();
+}
+
 //callback for dyn_reconfigure
 void MovementModule::parameterCallback(force_guiding::ModuleConfig &config, uint32_t level) {
     ROS_INFO("ParameterCallback %s", name_.c_str());
@@ -256,19 +261,19 @@ void MovementModule::readConfig(force_guiding::ModuleConfig &config){
     if(source_frame_ != config.source_frame){
         ROS_INFO("%s setting new source_frame %s", name_.c_str(), config.source_frame.c_str());
         source_frame_ = config.source_frame.c_str();
-        reference_position_ = getPositionByKey();
+        calibrate();
     }
 
     if(target_frame_ != config.target_frame){
         ROS_INFO("%s setting new target_frame %s", name_.c_str(), config.target_frame.c_str());
         target_frame_ = config.target_frame.c_str();
-        reference_position_ = getPositionByKey();
+        calibrate();
     }
 
     if(tf_key_ != tf_key(config.transform_dof)){
         ROS_INFO("%s setting new transform_dof %d", name_.c_str(), config.transform_dof);
         tf_key_ = tf_key(config.transform_dof);
-        reference_position_ = getPositionByKey();
+        calibrate();
     }
 
     cmd_key_ = cmd_key(config.base_dof);

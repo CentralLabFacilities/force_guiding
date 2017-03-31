@@ -34,6 +34,7 @@ cmake-build-debug/
 nbproject/
 .kdev4/
 force_guiding.kdev4
+.catkin_tools/
 
 # CMake 
 CMakeFiles/

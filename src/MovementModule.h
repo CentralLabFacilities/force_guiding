@@ -23,6 +23,7 @@ public:
     MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValue params = new XmlRpc::XmlRpcValue);
 
     /**     functions   **/
+    void calibrate();
 private:
     /**     dynamic     **/
     std::string source_frame_;

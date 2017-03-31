@@ -30,6 +30,11 @@ MovementController::MovementController(std::string name) : as_(nh, name, boost::
 }
 
 void MovementController::start(const force_guiding::GuidingGoalConstPtr &goal) {
+    ROS_INFO("calibrating modules ...");
+    for(auto mod_ptr : mv){
+        mod_ptr.get()->calibrate();
+    }
+
     ROS_INFO("creating message generator thread ... ");
     generateAndPublish();
 }
@@ -144,7 +149,6 @@ void MovementController::generateAndPublish() {
     running_ = true;
     
     while (ros::NodeHandle("~").ok()) {
-        ROS_ERROR("generate");
         sync_stamp = ros::Time::now();
         twist = geometry_msgs::Twist();
         
