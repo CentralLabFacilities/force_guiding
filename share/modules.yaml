@@ -13,42 +13,6 @@ ModuleList:
     transform_dof: Y_AXIS
     direction: NEGATIVE
 
-- name: arm_left_front
-  base_dof: LINEAR_Y
-  params:
-    target_frame: wrist_LEFT
-    transform_dof: X_AXIS
-    direction: BIDIRECTIONAL
-
-- name: arm_right_front
-  base_dof: LINEAR_X
-  params:
-    target_frame: wrist_RIGHT
-    transform_dof: X_AXIS
-    direction: BIDIRECTIONAL
-
-- name: arm_left_ang
-  base_dof: ANGULAR_Z
-  params:
-    source_frame: bicep_LEFT
-    target_frame: wrist_LEFT
-    transform_dof: YAW
-    direction: BIDIRECTIONAL
-    max_velocity: 1.0
-    velocity_factor: 1.2
-    deadzone_factor: 0.75
-
-- name: arm_right_ang
-  base_dof: ANGULAR_Z
-  params:
-    source_frame: bicep_RIGHT
-    target_frame: wrist_RIGHT
-    transform_dof: YAW
-    direction: BIDIRECTIONAL
-    max_velocity: 1.0
-    velocity_factor: 1.2
-    deadzone_factor: 0.75
-
 - name: torso_front
   base_dof: LINEAR_X
   params:
@@ -57,5 +21,26 @@ ModuleList:
     transform_dof: X_AXIS
     direction: POSITIVE
     velocity_factor: 1.4
-    deadzone_factor: 0.5
+    deadzone: 1.5
+
+- name: torso_back
+  base_dof: LINEAR_X
+  params:
+    source_frame: panplate
+    target_frame: neck_pan
+    transform_dof: X_AXIS
+    direction: NEGATIVE
+    velocity_factor: 1.7
+    deadzone: 1.0
+
+- name: torso_ang
+  base_dof: ANGULAR_Z
+  params:
+    source_frame: panplate
+    target_frame: neck_pan
+    transform_dof: YAW
+    direction: BIDIRECTIONAL
+    max_velocity: 1.0
+    velocity_factor: 1.2
+    deadzone: 10.0
 
