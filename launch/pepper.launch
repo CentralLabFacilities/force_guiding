@@ -1,0 +1,8 @@
+<launch>
+
+    <rosparam command="load" file="$(find force_guiding)/share/pepper.yaml" />
+    <param name="topic_pub" value="/cmd_vel" />
+
+    <node name="force_guiding" pkg="force_guiding" type="force_guiding"  output="screen" />
+    
+</launch>

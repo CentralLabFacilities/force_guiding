@@ -1,0 +1,29 @@
+ModuleList:
+- name: arm_left_x
+  base_dof: LINEAR_X
+  params:
+    target_frame: LHandTouchBack_frame
+    transform_dof: X_AXIS
+    direction: BIDIRECTIONAL
+
+- name: arm_left_y
+  base_dof: LINEAR_Y
+  params:
+    target_frame: LHandTouchBack_frame
+    transform_dof: Y_AXIS
+    direction: BIDIRECTIONAL
+
+- name: arm_right_x
+  base_dof: LINEAR_X
+  params:
+    target_frame: RHandTouchBack_frame
+    transform_dof: X_AXIS
+    direction: BIDIRECTIONAL
+
+- name: arm_right_y
+  base_dof: LINEAR_Y
+  params:
+    target_frame: RHandTouchBack_frame
+    transform_dof: Y_AXIS
+    direction: BIDIRECTIONAL
+
