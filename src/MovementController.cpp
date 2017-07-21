@@ -19,9 +19,10 @@ MovementController::MovementController(std::string name) : as_(nh, name, boost::
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
 
     if(!nh.getParam("topic_pub", topic_pub)){
-        ROS_FATAL("No topic to publish!");
-        ros::shutdown();
+        ROS_ERROR("No topic to publish, using cmd_vel!");
+        topic_pub = "/cmd_vel";
     }
+
     as_.start();
     
     //initialze publisher
@@ -142,7 +143,7 @@ bool MovementController::addModule(std::string name, cmd_key key, XmlRpc::XmlRpc
 }
 void MovementController::generateAndPublish() {
     
-    ros::Rate rate(100);
+    ros::Rate rate(5);
     ros::Time sync_stamp;
     geometry_msgs::Twist twist;
     

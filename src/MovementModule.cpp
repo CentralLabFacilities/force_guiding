@@ -208,15 +208,36 @@ bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, for
 double MovementModule::getPositionByKey(ros::Time time){
     ROS_DEBUG("%s trying to get position by key %d at %d seconds", name_.c_str(), static_cast<int>(tf_key_), time.sec);
 
-    //get transform, on error return 0
-    try{
-        listener_ptr_.get()->lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
-        ROS_DEBUG("got transform!");
+    bool got_tf = false;
+
+    for(int i = 0; i < 6; i++){
+        //get transform, on error return 0
+        try{
+            listener_ptr_.get()->lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
+            ROS_DEBUG("got transform!");
+            got_tf = true;
+            break;
+        }
+        catch (tf::TransformException ex){
+            ROS_ERROR("Module %s couldn't get transform at try %d", name_.c_str(), i);
+            ros::Duration(1.0).sleep();
+        }
     }
-    catch (tf::TransformException ex){
-        ROS_ERROR("Module %s couldn't get transform: %s", name_.c_str(), ex.what());
-        ros::Duration(1.0).sleep();
-        return 0;
+
+    if(!got_tf){
+        ROS_DEBUG("tf failed five times, giving it one last try!");
+
+        //get transform, on error return 0
+        try{
+            listener_ptr_.get()->lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
+            ROS_DEBUG("got transform on last try!");
+        }
+        catch (tf::TransformException ex){
+            ROS_ERROR("Module %s couldn't get transform: %s", name_.c_str(), ex.what());
+            ros::Duration(1.0).sleep();
+            return 0;
+        }
+
     }
 
     //switch translation as it can be returned directly
