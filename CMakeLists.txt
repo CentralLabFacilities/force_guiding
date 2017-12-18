@@ -108,6 +108,3 @@ install(DIRECTORY share
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-#install rosjava messages
-install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/org/ros/rosjava_messages/ 
-DESTINATION ${CATKIN_GLOBAL_MAVEN_DESTINATION}/org/ros/rosjava_messages)
