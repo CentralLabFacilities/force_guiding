@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
         dynamic_reconfigure
         message_generation
 	actionlib
+	force_guiding_msgs
 )
 
 ################################################
@@ -21,22 +22,22 @@ find_package(catkin REQUIRED COMPONENTS
 ################################################
 
 ## Generate services in the 'srv' folder
- add_service_files(
-   FILES
-   Velocity.srv
-)
+# add_service_files(
+#   FILES
+#   Velocity.srv
+#)
 
-add_action_files(
-	DIRECTORY action 
-	FILES Guiding.action
-)
+#add_action_files(
+#	DIRECTORY action 
+#	FILES Guiding.action
+#)
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
-   actionlib_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+#   actionlib_msgs
+#)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

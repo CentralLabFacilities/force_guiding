@@ -1,7 +1,0 @@
-time stamp
----
-string name
-bool priority_flag
-bool finished_movement
-float64 vel
-int8 base_dof

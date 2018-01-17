@@ -10,7 +10,7 @@
 #include <force_guiding/ControllerConfig.h>
 #include <dynamic_reconfigure/server.h>
 #include <actionlib/server/simple_action_server.h>
-#include <force_guiding/GuidingAction.h>
+#include <force_guiding_msgs/GuidingAction.h>
 #include <thread>
 
 class MovementController {
@@ -51,7 +51,7 @@ private:
     std::vector<ros::ServiceClient> client_list;
 
     //actionlib
-    actionlib::SimpleActionServer<force_guiding::GuidingAction> as_;
+    actionlib::SimpleActionServer<force_guiding_msgs::GuidingAction> as_;
     bool running_ = false;
     
     /**     constants   **/
@@ -78,7 +78,7 @@ private:
     bool matchCmdKey(cmd_key& key, std::string name, int key_int);
     
     void preemptCallback();
-    void start(const force_guiding::GuidingGoalConstPtr &goal);
+    void start(const force_guiding_msgs::GuidingGoalConstPtr &goal);
 
 };
 

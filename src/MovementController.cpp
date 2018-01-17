@@ -30,7 +30,7 @@ MovementController::MovementController(std::string name) : as_(nh, name, boost::
     
 }
 
-void MovementController::start(const force_guiding::GuidingGoalConstPtr &goal) {
+void MovementController::start(const force_guiding_msgs::GuidingGoalConstPtr &goal) {
     ROS_INFO("calibrating modules ...");
     for(auto mod_ptr : mv){
         mod_ptr.get()->calibrate();
@@ -135,7 +135,7 @@ bool MovementController::addModule(std::string name, cmd_key key, XmlRpc::XmlRpc
     std::string service_name(name);
     service_name.append("/calculateVelocity");
 
-    client_list.push_back(ros::NodeHandle("~").serviceClient<force_guiding::Velocity>(service_name));
+    client_list.push_back(ros::NodeHandle("~").serviceClient<force_guiding_msgs::Velocity>(service_name));
     active_modules.push_back(name);
     ROS_DEBUG_STREAM("connected to: " << client_list[client_list.size() - 1].getService());
 
@@ -161,7 +161,7 @@ void MovementController::generateAndPublish() {
         /** maybe call async clients in one for loop and collect in another one **/
         
         for (auto client : client_list) {
-            force_guiding::Velocity srv;
+            force_guiding_msgs::Velocity srv;
             srv.request.stamp = sync_stamp;
 
             if (client.call(srv)) {

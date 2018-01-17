@@ -12,7 +12,7 @@
 #include "tf/transform_listener.h"
 #include <XmlRpcException.h>
 #include "dynamic_reconfigure/server.h"
-#include "force_guiding/Velocity.h"
+#include "force_guiding_msgs/Velocity.h"
 #include "EnumKeys.h"
 #include <force_guiding/ModuleConfig.h>
 
@@ -73,7 +73,7 @@ private:
     double last_vel_ = 0;
     
     /**     functions   **/
-    bool calcVelocity(force_guiding::Velocity::Request &request, force_guiding::Velocity::Response &response);
+    bool calcVelocity(force_guiding_msgs::Velocity::Request &request, force_guiding_msgs::Velocity::Response &response);
     double getPositionByKey(ros::Time  = ros::Time::now());
     void overrideDefaultParameter(XmlRpc::XmlRpcValue params);
     void readConfig(force_guiding::ModuleConfig &config);

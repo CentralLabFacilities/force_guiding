@@ -120,7 +120,7 @@ void MovementModule::overrideDefaultParameter(XmlRpc::XmlRpcValue params){
 }
 
 //calculates new velocities to set depending on the deflections of the input joint
-bool MovementModule::calcVelocity(force_guiding::Velocity::Request &request, force_guiding::Velocity::Response &response){
+bool MovementModule::calcVelocity(force_guiding_msgs::Velocity::Request &request, force_guiding_msgs::Velocity::Response &response){
     double dist, velocity, actual_position;
 
     if (!enable_toggle_) {
