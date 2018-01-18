@@ -2,14 +2,14 @@ ModuleList:
 - name: arm_left
   base_dof: LINEAR_Y
   params:
-    target_frame: wrist_LEFT
+    target_frame: wrist_left
     transform_dof: Y_AXIS
     direction: POSITIVE
 
 - name: arm_right
   base_dof: LINEAR_Y
   params:
-    target_frame: wrist_RIGHT
+    target_frame: wrist_right
     transform_dof: Y_AXIS
     direction: NEGATIVE
 
