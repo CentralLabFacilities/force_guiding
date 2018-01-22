@@ -24,17 +24,19 @@ MovementModule::MovementModule(std::string name, cmd_key key, XmlRpc::XmlRpcValu
         ROS_WARN("Module %s is using defaults, XmlRpc says: %s", name.c_str(), exception.getMessage().c_str());
     }
 
-    //waiting, otherwise the first tf would always fail
+    // create tf listener
     listener_ptr_.reset(new tf::TransformListener);
-    ROS_INFO("%s waiting for transform for 1s", name.c_str());
-    listener_ptr_.get()->waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(1.0));
-    
-    //create server
+
+    //create server and get first parameter callback
     f_ = boost::bind(&MovementModule::parameterCallback, this, _1, _2);
     dyn_reconfigure_server_ptr_.get()->setCallback(f_);
 
-    ROS_INFO("getting intial position");
+    //waiting, otherwise the first tf would always fail
+    ROS_INFO("%s waiting for transform for 1s", name.c_str());
+    listener_ptr_.get()->waitForTransform(source_frame_, target_frame_, ros::Time::now(), ros::Duration(1.0));
+    
     //get initial position
+    ROS_INFO("getting intial position");
     calibrate();
 
     service_ptr_.reset(new ros::ServiceServer(nh.advertiseService("calculateVelocity", &MovementModule::calcVelocity, this)));
@@ -209,20 +211,17 @@ double MovementModule::getPositionByKey(ros::Time time){
     ROS_DEBUG("%s trying to get position by key %d at %d seconds", name_.c_str(), static_cast<int>(tf_key_), time.sec);
 
     bool got_tf = false;
-
-    for(int i = 0; i < 6; i++){
-        //get transform, on error return 0
-        try{
-            listener_ptr_.get()->lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
-            ROS_DEBUG("got transform!");
-            got_tf = true;
-            break;
-        }
-        catch (tf::TransformException ex){
-            ROS_ERROR("Module %s couldn't get transform at try %d", name_.c_str(), i);
-            ros::Duration(1.0).sleep();
-        }
+    
+    try{
+        listener_ptr_.get()->lookupTransform(source_frame_, target_frame_, ros::Time(0), transform_);
+        ROS_DEBUG("got transform!");
+        got_tf = true;
     }
+    catch (tf::TransformException ex){
+        ROS_ERROR("Module %s couldn't get transform!", name_.c_str());
+        ros::Duration(1.0).sleep();
+    }
+
 
     if(!got_tf){
         ROS_DEBUG("tf failed five times, giving it one last try!");
@@ -281,20 +280,17 @@ void MovementModule::readConfig(force_guiding::ModuleConfig &config){
 
     if(source_frame_ != config.source_frame){
         ROS_INFO("%s setting new source_frame %s", name_.c_str(), config.source_frame.c_str());
-        source_frame_ = config.source_frame.c_str();
-        calibrate();
+        source_frame_ = config.source_frame.c_str(); 
     }
 
     if(target_frame_ != config.target_frame){
         ROS_INFO("%s setting new target_frame %s", name_.c_str(), config.target_frame.c_str());
         target_frame_ = config.target_frame.c_str();
-        calibrate();
     }
 
     if(tf_key_ != tf_key(config.transform_dof)){
         ROS_INFO("%s setting new transform_dof %d", name_.c_str(), config.transform_dof);
         tf_key_ = tf_key(config.transform_dof);
-        calibrate();
     }
 
     cmd_key_ = cmd_key(config.base_dof);
